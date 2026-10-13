@@ -26,8 +26,14 @@ if ! systemctl is-active --quiet docker; then
   sudo systemctl start docker
 fi
 
-echo "📦 Building and starting Murgdur containers..."
-docker compose -f infrastructure/docker-compose.prod.yml up -d --build
+echo "📦 Building backend container..."
+docker compose -f infrastructure/docker-compose.prod.yml build backend
+
+echo "📦 Building frontend container..."
+docker compose -f infrastructure/docker-compose.prod.yml build frontend
+
+echo "🚀 Starting all Murgdur/VIT containers..."
+docker compose -f infrastructure/docker-compose.prod.yml up -d
 
 echo "⏳ Waiting for backend health check..."
 for i in {1..30}; do
