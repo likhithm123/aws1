@@ -27,13 +27,13 @@ if ! systemctl is-active --quiet docker; then
 fi
 
 echo "📦 Building backend container..."
-docker compose -f infrastructure/docker-compose.prod.yml build backend
+docker compose --env-file .env -f infrastructure/docker-compose.prod.yml build backend
 
 echo "📦 Building frontend container..."
-docker compose -f infrastructure/docker-compose.prod.yml build frontend
+docker compose --env-file .env -f infrastructure/docker-compose.prod.yml build frontend
 
 echo "🚀 Starting all Murgdur/VIT containers..."
-docker compose -f infrastructure/docker-compose.prod.yml up -d
+docker compose --env-file .env -f infrastructure/docker-compose.prod.yml up -d
 
 echo "⏳ Waiting for backend health check..."
 for i in {1..30}; do
@@ -46,7 +46,7 @@ for i in {1..30}; do
 done
 
 echo "🌱 Seeding database with admin user & initial config..."
-docker compose -f infrastructure/docker-compose.prod.yml exec -T backend node prisma/seed.js || true
+docker compose --env-file .env -f infrastructure/docker-compose.prod.yml exec -T backend node prisma/seed.js || true
 
 echo "🎉 Deployment complete!"
 echo "  Frontend:  http://$(curl -s http://checkip.amazonaws.com):3000"
