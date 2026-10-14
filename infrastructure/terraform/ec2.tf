@@ -19,29 +19,8 @@ data "aws_ami" "ubuntu" {
   }
 }
 
-# ── EC2 App Server Instance ───────────────────────────────────
-resource "aws_instance" "app_server" {
-  ami                  = data.aws_ami.ubuntu.id
-  instance_type        = var.ec2_instance_type # t3.micro (Free Tier)
-  subnet_id            = aws_subnet.public_1.id
-  vpc_security_group_ids = [aws_security_group.ec2.id]
-  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
-  key_name             = var.ec2_key_name != "" ? var.ec2_key_name : null
-
-  # 30 GB gp3 EBS root volume (Max Free Tier allowance)
-  root_block_device {
-    volume_size           = 30
-    volume_type           = "gp3"
-    delete_on_termination = true
-    encrypted             = true
-
-    tags = {
-      Name = "${var.project_name}-ec2-root-ebs"
-    }
-  }
-
-  # ── Cloud-Init Bootstrap Script (User Data) ────────────────
-  user_data = <<-EOF
+locals {
+  ec2_user_data = <<-EOF
               #!/bin/bash
               set -e
 
@@ -85,6 +64,30 @@ resource "aws_instance" "app_server" {
               # 6. Log readiness
               echo "Murgdur EC2 Instance initialization completed successfully at $(date)" > /var/log/murgdur-init.log
               EOF
+}
+
+# ── EC2 App Server Instance ───────────────────────────────────
+resource "aws_instance" "app_server" {
+  ami                  = data.aws_ami.ubuntu.id
+  instance_type        = var.ec2_instance_type # t3.micro (Free Tier)
+  subnet_id            = aws_subnet.public_1.id
+  vpc_security_group_ids = [aws_security_group.ec2.id]
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
+  key_name             = var.ec2_key_name != "" ? var.ec2_key_name : null
+
+  # 30 GB gp3 EBS root volume (Max Free Tier allowance)
+  root_block_device {
+    volume_size           = 30
+    volume_type           = "gp3"
+    delete_on_termination = true
+    encrypted             = true
+
+    tags = {
+      Name = "${var.project_name}-ec2-root-ebs"
+    }
+  }
+
+  user_data = local.ec2_user_data
 
   tags = {
     Name = "${var.project_name}-app-server"

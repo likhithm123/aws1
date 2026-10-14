@@ -24,7 +24,13 @@ export default function LoginPage() {
     setLoading(true); setError('')
     const res = await signIn('credentials', { email, password, redirect: false })
     if (res?.error) {
-      setError(res.error === 'CredentialsSignin' ? 'Invalid email or password' : res.error)
+      if (res.error === 'CredentialsSignin') {
+        setError('Invalid email or password.')
+      } else if (res.error.toLowerCase().includes('config')) {
+        setError('Server auth configuration error: NEXTAUTH_SECRET / AUTH_SECRET missing or backend unreachable.')
+      } else {
+        setError(res.error)
+      }
       setLoading(false)
     } else {
       router.push('/')

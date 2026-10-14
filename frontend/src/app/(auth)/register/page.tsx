@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { Input }     from '@/components/ui/Input'
 import { Button }    from '@/components/ui/Button'
 import { PhoneInput } from '@/components/ui/PhoneInput'
-import { OtpVerifyField } from '@/components/auth/OtpVerifyField'
 import { api }       from '@/lib/api'
 import Link          from 'next/link'
 import { useAuth }   from '@/hooks/useAuth'
@@ -16,7 +15,6 @@ export default function RegisterPage() {
   const router = useRouter()
   const { isLoggedIn, isLoading } = useAuth()
   const [form, setForm]           = useState({ firstName: '', lastName: '', email: '', phone: '', password: '' })
-  const [emailVerified, setEmailVerified] = useState(false)
   const [phoneValid,    setPhoneValid]    = useState(true)
   const [error,    setError]    = useState('')
   const [loading,  setLoading]  = useState(false)
@@ -27,15 +25,18 @@ export default function RegisterPage() {
   }, [isLoading, isLoggedIn, router])
 
   const emailValid = EMAIL_REGEX.test(form.email)
-  // Can submit only when email is verified
-  const canSubmit  = form.firstName && form.lastName && emailValid && emailVerified &&
-                     form.password.length >= 8 && phoneValid
+  const canSubmit  = Boolean(
+    form.firstName &&
+    form.lastName &&
+    emailValid &&
+    form.password.length >= 8 &&
+    phoneValid
+  )
 
   function update(field: string) {
     return (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value
       setForm(f => ({ ...f, [field]: value }))
-      if (field === 'email') setEmailVerified(false)
     }
   }
 
@@ -101,20 +102,15 @@ export default function RegisterPage() {
             <Input label="Last Name"  value={form.lastName}  onChange={update('lastName')}  />
           </div>
 
-          {/* Email + OTP verification */}
-          <div className="space-y-2">
-            <Input label="Email" type="email" value={form.email} onChange={update('email')}
-              error={form.email && !emailValid ? 'Enter a valid email address' : undefined} />
-            <OtpVerifyField
-              identifier={form.email}
-              purpose="email"
-              valid={emailValid}
-              verified={emailVerified}
-              onVerifiedChange={setEmailVerified}
-            />
-          </div>
+          <Input
+            label="Email"
+            type="email"
+            value={form.email}
+            onChange={update('email')}
+            error={form.email && !emailValid ? 'Enter a valid email address' : undefined}
+          />
 
-          {/* Phone — no OTP, just country code + length validation */}
+          {/* Phone — optional */}
           <PhoneInput label="Phone (optional)" value={form.phone} onChange={onPhoneChange} />
 
           <Input label="Password" type="password" value={form.password} onChange={update('password')}
@@ -125,12 +121,6 @@ export default function RegisterPage() {
           <Button onClick={handleSubmit} loading={loading} fullWidth disabled={!canSubmit}>
             Create Account
           </Button>
-
-          {!emailVerified && emailValid && (
-            <p className="text-luxury-muted text-xs text-center tracking-luxury">
-              Please verify your email address above before creating your account.
-            </p>
-          )}
 
           <p className="text-luxury-muted text-center text-sm tracking-wide">
             Already have an account?{' '}

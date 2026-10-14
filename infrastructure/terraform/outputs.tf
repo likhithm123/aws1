@@ -66,3 +66,34 @@ output "opensearch_endpoint" {
   description = "Amazon OpenSearch / Elasticsearch VPC Endpoint (if enabled)"
   value       = var.enable_opensearch ? "https://${aws_opensearch_domain.search[0].endpoint}" : "disabled (using PostgreSQL search fallback to preserve AWS credits)"
 }
+
+output "alb_dns_name" {
+  description = "Application Load Balancer Public DNS Name"
+  value       = aws_lb.app.dns_name
+}
+
+output "cloudtrail_name" {
+  description = "AWS CloudTrail Multi-Region Audit Trail Name"
+  value       = aws_cloudtrail.main.name
+}
+
+output "dynamodb_table_name" {
+  description = "Amazon DynamoDB Cart & Sessions Table Name"
+  value       = aws_dynamodb_table.app_sessions.name
+}
+
+output "kms_key_arn" {
+  description = "AWS KMS Customer Managed Key ARN"
+  value       = aws_kms_key.app_cmk.arn
+}
+
+output "waf_web_acl_arn" {
+  description = "AWS WAF Web ACL protecting ALB"
+  value       = aws_wafv2_web_acl.alb_waf.arn
+}
+
+output "cloudwatch_dashboard_name" {
+  description = "CloudWatch Dashboard Name"
+  value       = aws_cloudwatch_dashboard.main.dashboard_name
+}
+

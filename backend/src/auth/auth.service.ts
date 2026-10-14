@@ -61,15 +61,6 @@ export class AuthService {
     const exists = await this.prisma.user.findUnique({ where: { email: dto.email } })
     if (exists) throw new ConflictException('Email already registered')
 
-    const emailVerified = await this.verification.isVerified(dto.email, 'email')
-    if (!emailVerified) throw new BadRequestException('Please verify your email with the code sent to it before creating an account')
-
-    let phoneVerified = false
-    if (dto.phone) {
-      phoneVerified = await this.verification.isVerified(dto.phone, 'phone')
-      if (!phoneVerified) throw new BadRequestException('Please verify your phone number with the code sent to it before creating an account')
-    }
-
     const passwordHash = await bcrypt.hash(dto.password, 12)
     const customerId = `MRG-${String(Date.now()).slice(-8)}`
 
@@ -82,7 +73,7 @@ export class AuthService {
         phone: dto.phone,
         customerId,
         emailVerified: true,
-        phoneVerified,
+        phoneVerified: !!dto.phone,
       }
     })
 
