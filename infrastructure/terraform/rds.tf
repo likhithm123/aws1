@@ -12,10 +12,10 @@ resource "aws_db_subnet_group" "rds" {
   }
 }
 
-# ── Supported PostgreSQL 16 Version in Region ────────────────
+# ── Default Supported PostgreSQL Version in Region ────────────
 data "aws_rds_engine_version" "postgres" {
-  engine             = "postgres"
-  preferred_versions = ["16.4", "16.2", "16.1"]
+  engine       = "postgres"
+  default_only = true
 }
 
 # ── RDS PostgreSQL Instance ───────────────────────────────────
