@@ -34,7 +34,7 @@ output "s3_bucket_name" {
 
 output "rds_postgres_endpoint" {
   description = "Amazon RDS PostgreSQL Database Endpoint"
-  value       = aws_db_instance.postgres.endpoint
+  value       = local.rds_endpoint
 }
 
 output "sqs_order_queue_url" {

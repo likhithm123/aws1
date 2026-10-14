@@ -35,10 +35,22 @@ variable "db_password" {
   default     = "MurgdurSecure2026!"
 }
 
+variable "use_existing_db" {
+  description = "Whether to use an existing RDS instance instead of creating a new one (prevents Free Tier quota limit errors)"
+  type        = bool
+  default     = true
+}
+
+variable "existing_db_instance_identifier" {
+  description = "Identifier of the existing RDS database to connect to"
+  type        = string
+  default     = "database-1"
+}
+
 variable "db_name" {
   description = "Database name for Murgdur"
   type        = string
-  default     = "murgdurV2"
+  default     = "postgres"
 }
 
 variable "ec2_instance_type" {

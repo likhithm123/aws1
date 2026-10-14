@@ -17,7 +17,7 @@ resource "aws_ssm_parameter" "database_url" {
   name        = "/${var.project_name}/${var.environment}/database_url"
   description = "PostgreSQL Database Connection URL for Prisma"
   type        = "SecureString"
-  value       = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}?schema=public"
+  value       = "postgresql://${var.db_username}:${var.db_password}@${local.rds_endpoint}/${var.db_name}?schema=public"
 
   tags = {
     Name = "${var.project_name}-database-url-param"

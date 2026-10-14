@@ -12,15 +12,21 @@ resource "aws_db_subnet_group" "rds" {
   }
 }
 
-# ── RDS PostgreSQL Instance ───────────────────────────────────
+# ── RDS PostgreSQL Instance (Existing or New) ───────────────────
+data "aws_db_instance" "postgres" {
+  count                  = var.use_existing_db ? 1 : 0
+  db_instance_identifier = var.existing_db_instance_identifier
+}
+
 resource "aws_db_instance" "postgres" {
+  count             = var.use_existing_db ? 0 : 1
   identifier        = "${var.project_name}-postgres"
   engine            = "postgres"
-  instance_class    = "db.t3.micro" # 750 hrs/month Free Tier eligible
+  instance_class    = "db.t3.micro"
 
-  allocated_storage = 20           # 20 GB Free Tier limit
-  max_allocated_storage = 20       # Prevents automatic scaling beyond Free Tier
-  storage_type      = "gp3"
+  allocated_storage     = 20
+  max_allocated_storage = 20
+  storage_type          = "gp3"
 
   db_name  = var.db_name
   username = var.db_username
@@ -31,18 +37,21 @@ resource "aws_db_instance" "postgres" {
   vpc_security_group_ids = [aws_security_group.rds.id]
   publicly_accessible    = false
 
-  # High Availability note: Multi-AZ is covered conceptually in Module 4;
-  # for strict 100% Free Tier usage, Multi-AZ is disabled (single-AZ).
-  multi_az = false
-
-  backup_retention_period   = 0 # 0 avoids FreeTierRestrictionError on Free Tier accounts
-  deletion_protection       = false
-  skip_final_snapshot       = true
+  multi_az                   = false
+  backup_retention_period    = 0
+  deletion_protection        = false
+  skip_final_snapshot        = true
   auto_minor_version_upgrade = true
 
   tags = {
     Name = "${var.project_name}-postgres-rds"
   }
+}
+
+locals {
+  rds_identifier = var.use_existing_db ? data.aws_db_instance.postgres[0].db_instance_identifier : aws_db_instance.postgres[0].identifier
+  rds_endpoint   = var.use_existing_db ? data.aws_db_instance.postgres[0].endpoint : aws_db_instance.postgres[0].endpoint
+  rds_address    = var.use_existing_db ? data.aws_db_instance.postgres[0].address : aws_db_instance.postgres[0].address
 }
 
 # ── RDS to S3 Bucket Link (IAM Role & Association for S3 Import/Export) ──
@@ -92,13 +101,15 @@ resource "aws_iam_role_policy" "rds_s3_policy" {
 }
 
 resource "aws_db_instance_role_association" "rds_s3_export" {
-  db_instance_identifier = aws_db_instance.postgres.identifier
+  count                  = var.use_existing_db ? 0 : 1
+  db_instance_identifier = local.rds_identifier
   feature_name           = "s3Export"
   role_arn               = aws_iam_role.rds_s3_role.arn
 }
 
 resource "aws_db_instance_role_association" "rds_s3_import" {
-  db_instance_identifier = aws_db_instance.postgres.identifier
+  count                  = var.use_existing_db ? 0 : 1
+  db_instance_identifier = local.rds_identifier
   feature_name           = "s3Import"
   role_arn               = aws_iam_role.rds_s3_role.arn
 }

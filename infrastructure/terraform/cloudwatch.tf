@@ -49,7 +49,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_high_cpu" {
   alarm_actions       = [aws_sns_topic.order_alerts.arn]
 
   dimensions = {
-    DBInstanceIdentifier = aws_db_instance.postgres.identifier
+    DBInstanceIdentifier = local.rds_identifier
   }
 
   tags = {
@@ -71,7 +71,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_low_storage" {
   alarm_actions       = [aws_sns_topic.order_alerts.arn]
 
   dimensions = {
-    DBInstanceIdentifier = aws_db_instance.postgres.identifier
+    DBInstanceIdentifier = local.rds_identifier
   }
 
   tags = {
@@ -109,7 +109,7 @@ resource "aws_cloudwatch_dashboard" "main" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", aws_db_instance.postgres.identifier],
+            ["AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", local.rds_identifier],
             [".", "DatabaseConnections", ".", "."]
           ]
           period = 300
