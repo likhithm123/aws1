@@ -12,17 +12,10 @@ resource "aws_db_subnet_group" "rds" {
   }
 }
 
-# ── Default Supported PostgreSQL Version in Region ────────────
-data "aws_rds_engine_version" "postgres" {
-  engine       = "postgres"
-  default_only = true
-}
-
 # ── RDS PostgreSQL Instance ───────────────────────────────────
 resource "aws_db_instance" "postgres" {
   identifier        = "${var.project_name}-postgres"
   engine            = "postgres"
-  engine_version    = data.aws_rds_engine_version.postgres.version
   instance_class    = "db.t3.micro" # 750 hrs/month Free Tier eligible
 
   allocated_storage = 20           # 20 GB Free Tier limit
