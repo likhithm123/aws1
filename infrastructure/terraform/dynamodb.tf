@@ -29,7 +29,6 @@ resource "aws_dynamodb_table" "app_sessions" {
   }
 
   tags = {
-    Name        = "${var.project_name}-cart-sessions"
-    Description = "NoSQL store for guest carts, temporary session locks, and rate limit tracking"
+    Name = "${var.project_name}-cart-sessions"
   }
 }

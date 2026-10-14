@@ -36,7 +36,7 @@ resource "aws_db_instance" "postgres" {
   # for strict 100% Free Tier usage, Multi-AZ is disabled (single-AZ).
   multi_az = false
 
-  backup_retention_period   = 7 # Free backup storage up to 20 GB included
+  backup_retention_period   = 0 # 0 avoids FreeTierRestrictionError on Free Tier accounts
   deletion_protection       = false
   skip_final_snapshot       = true
   auto_minor_version_upgrade = true

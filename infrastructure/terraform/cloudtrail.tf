@@ -9,8 +9,7 @@ resource "aws_s3_bucket" "cloudtrail_logs" {
   force_destroy = true
 
   tags = {
-    Name        = "${var.project_name}-cloudtrail-logs"
-    Description = "Storage for AWS CloudTrail management & data audit logs"
+    Name = "${var.project_name}-cloudtrail-logs"
   }
 }
 

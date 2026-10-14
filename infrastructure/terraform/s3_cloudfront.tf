@@ -9,8 +9,7 @@ resource "aws_s3_bucket" "media" {
   force_destroy = true
 
   tags = {
-    Name        = "${var.project_name}-media-bucket"
-    Description = "Storage for product images, videos, and invoices"
+    Name = "${var.project_name}-media-bucket"
   }
 }
 
