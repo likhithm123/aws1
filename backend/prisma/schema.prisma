@@ -179,7 +179,7 @@ model Product {
   comparePrice     Decimal?         @db.Decimal(10, 2)
   currency         String           @default("INR")
   categoryId       String
-  brand            String           @default("Murgdur")
+  brand            String           @default("VIT Electronics")
   material         String?
   careInstructions String?
   origin           String?
