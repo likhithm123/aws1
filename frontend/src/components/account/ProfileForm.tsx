@@ -1,11 +1,13 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useSession }         from 'next-auth/react'
 import { Input }       from '@/components/ui/Input'
 import { Button }      from '@/components/ui/Button'
 import { PhoneInput }  from '@/components/ui/PhoneInput'
 import { api }         from '@/lib/api'
 
 export function ProfileForm({ user }: { user: any }) {
+  const { update: updateSession } = useSession()
   const [form, setForm] = useState({
     firstName: user?.firstName ?? '',
     lastName:  user?.lastName  ?? '',
@@ -37,7 +39,12 @@ export function ProfileForm({ user }: { user: any }) {
     if (form.phone && !phoneValid) { setError('Please enter a valid phone number.'); return }
     setLoading(true); setError('')
     try {
-      await api.patch('/users/me', form)
+      const res = await api.patch('/users/me', form)
+      // Refresh the NextAuth JWT so header/navbar shows the updated name immediately
+      await updateSession({
+        firstName: res.data.firstName ?? form.firstName,
+        lastName:  res.data.lastName  ?? form.lastName,
+      })
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
     } catch (e: any) {
