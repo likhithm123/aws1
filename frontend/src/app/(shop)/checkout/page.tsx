@@ -16,7 +16,7 @@ export default function CheckoutPage() {
   const { data: session }    = useSession()
   const { items, total, clearCart } = useCart()
   const { format }           = useCurrency()
-  const { shippingCost, taxRate, taxLabel, whatsappNumber, whatsappMessageTemplate } = useSiteConfig()
+  const { shippingCost, taxRate, taxLabel } = useSiteConfig()
 
   const [addresses,          setAddresses]          = useState<Address[]>([])
   const [selectedAddressId,  setSelectedAddressId]  = useState<string | null>(null)
@@ -39,60 +39,25 @@ export default function CheckoutPage() {
     }).catch(() => setLoaded(true))
   }, [items.length, router])
 
-  async function handleConcierge() {
+  async function handlePlaceOrder() {
     if (!selectedAddressId) { setError('Please select a shipping address.'); return }
     setLoading(true); setError(null)
 
     try {
-      const addr    = addresses.find(a => a.id === selectedAddressId)!
-      const user    = (session?.user as any)
-      const name    = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()
-      const itemRows = items.map(i =>
-        `${i.productId.slice(0,8)} | ${i.name}${i.color ? ` (${i.color}${i.size ? '/' + i.size : ''})` : ''} | Qty: ${i.quantity} | ${format(i.price * i.quantity)}`
-      ).join('\n')
-      const addressLine = [addr.line1, addr.line2, addr.city, addr.state, addr.postalCode, addr.country].filter(Boolean).join(', ')
-
-      // Create temp order on backend
-      const res = await api.post('/temp-orders', {
-        addressId:    selectedAddressId,
-        customerName: name,
+      const res = await api.post('/orders', {
+        addressId: selectedAddressId,
         items: items.map(i => ({
-          productId:   i.productId,
-          variantId:   i.variantId,
-          productName: i.name,
-          productSku:  i.productId.slice(0, 8),
-          quantity:    i.quantity,
-          unitPrice:   i.price,
-          totalPrice:  i.price * i.quantity,
-          image:       i.image,
-          color:       i.color,
-          size:        i.size,
+          productId: i.productId,
+          variantId: i.variantId || undefined,
+          quantity:  i.quantity,
         })),
-        subtotal: total,
-        tax,
-        shipping,
-        total: grandTotal,
+        paymentMethod: 'PAY_ON_DELIVERY',
       })
-      const tempId = res.data?.id ?? res.data?.data?.id
-
-      const DEFAULT_TEMPLATE = `Hello VIT Tech,\n\nTemp ID: {{tempId}}\n\nI {{customerName}} am interested to purchase the following tech gear:\n{{items}}\n\nTotal Cost: {{total}}\nAddress: {{address}}\n\nCould you please connect me to the tech concierge.`
-      const template = whatsappMessageTemplate?.trim() || DEFAULT_TEMPLATE
-
-      let message = template
-        .replace(/\{\{tempId\}\}/g,       tempId)
-        .replace(/\{\{customerName\}\}/g, name)
-        .replace(/\{\{items\}\}/g,        itemRows)
-        .replace(/\{\{total\}\}/g,        format(grandTotal))
-        .replace(/\{\{address\}\}/g,      addressLine)
-
-      const number = (whatsappNumber || '').replace(/[^0-9+]/g, '')
-      const waUrl  = `https://wa.me/${number}?text=${encodeURIComponent(message)}`
-
+      const order = res.data?.data ?? res.data
       clearCart()
-      window.open(waUrl, '_blank')
-      router.push('/')
+      router.push(`/orders/${order.id}`)
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? err?.message ?? 'Something went wrong. Please try again.')
+      setError(err?.response?.data?.message ?? err?.message ?? 'Failed to place order. Please try again.')
       setLoading(false)
     }
   }
@@ -163,13 +128,13 @@ export default function CheckoutPage() {
 
         {error && <p className="text-red-400 text-sm">{error}</p>}
 
-        {/* WhatsApp concierge CTA */}
+        {/* Place Order CTA */}
         <div className="space-y-3">
-          <Button fullWidth onClick={handleConcierge} loading={loading} disabled={addresses.length === 0}>
-            Contact Concierge Services
+          <Button fullWidth onClick={handlePlaceOrder} loading={loading} disabled={addresses.length === 0}>
+            Place Order (Pay on Delivery)
           </Button>
           <p className="text-luxury-muted text-xs text-center tracking-luxury">
-            You will be redirected to WhatsApp to complete your order with our concierge team.
+            Your order will be placed and an invoice will be generated automatically.
           </p>
         </div>
       </div>

@@ -7,7 +7,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { AwsService } from '../aws/aws.service'
 
 const s3Client = (() => {
-  const awsConfig: any = { region: process.env.AWS_REGION || 'us-east-1' }
+  const awsConfig: any = { region: process.env.AWS_REGION || 'ap-southeast-2' }
   if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
     awsConfig.credentials = {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -171,20 +171,30 @@ export class OrdersService {
     }
   }
 
-  // ── Standard order creation (kept for legacy; NOT used by WhatsApp flow) ──
+  // ── Standard order creation with direct invoice generation ──────────────
   async createOrder(userId: string, dto: CreateOrderDto) {
-    const orderNumber = `MRG-ORD-${Date.now()}`
+    const orderNumber = `VIT-ORD-${Math.floor(100000 + Math.random() * 900000)}`
 
     const items = await Promise.all(dto.items.map(async item => {
       const product = await this.prisma.product.findUnique({ where: { id: item.productId }, include: { images: { take: 1 } } })
       const variant = item.variantId ? await this.prisma.productVariant.findUnique({ where: { id: item.variantId } }) : null
       const unitPrice = Number(variant?.price ?? product?.price ?? 0)
-      return { productId: item.productId, variantId: item.variantId ?? null, quantity: item.quantity, unitPrice, totalPrice: unitPrice * item.quantity, snapshot: { name: product?.name, image: product?.images?.[0]?.url } }
+      return {
+        productId:  item.productId,
+        variantId:  item.variantId ?? null,
+        quantity:   item.quantity,
+        unitPrice,
+        totalPrice: unitPrice * item.quantity,
+        snapshot:   { name: product?.name, image: product?.images?.[0]?.url },
+      }
     }))
 
     const subtotal = items.reduce((s, i) => s + i.totalPrice, 0)
-    const tax   = subtotal * 0.18
-    const total = subtotal + tax
+    const cfg = await this.prisma.siteConfig.findUnique({ where: { id: 'main' } })
+    const taxRate = cfg?.taxRate !== undefined && cfg?.taxRate !== null ? Number(cfg.taxRate) : 18
+    const shippingFee = cfg?.shippingCost !== undefined && cfg?.shippingCost !== null ? Number(cfg.shippingCost) : 0
+    const tax = subtotal * (taxRate / 100)
+    const total = subtotal + tax + shippingFee
 
     const order = await this.prisma.$transaction(async tx => {
       for (const item of items) {
@@ -194,9 +204,38 @@ export class OrdersService {
         await tx.productVariant.update({ where: { id: item.variantId }, data: { stock: { decrement: item.quantity } } })
       }
       return tx.order.create({
-        data: { orderNumber, userId, addressId: dto.addressId, subtotal, tax, total, paymentMethod: dto.paymentMethod ?? 'PAY_ON_DELIVERY', items: { create: items } },
-        include: { items: true },
+        data: {
+          orderNumber,
+          userId,
+          addressId:     dto.addressId,
+          subtotal,
+          tax,
+          shippingFee,
+          total,
+          paymentMethod: dto.paymentMethod ?? 'PAY_ON_DELIVERY',
+          status:        'CONFIRMED',
+          items:         { create: items },
+        },
+        include: { items: true, user: true, address: true },
       })
+    })
+
+    // AWS Integration: SQS & SNS
+    this.aws.enqueueOrderMessage({
+      orderId:     order.id,
+      orderNumber: order.orderNumber,
+      total:       order.total,
+      userId:      order.userId,
+    }).catch(() => {})
+
+    this.aws.publishNotification(
+      `New Order Placed: ${order.orderNumber}`,
+      `Order ${order.orderNumber} placed for ₹${order.total}. Customer ID: ${order.userId}`,
+    ).catch(() => {})
+
+    // Automatically generate invoice PDF, upload to S3, and save to DB
+    this.sendConfirmedInvoice(order.id).catch(err => {
+      console.error('Invoice generation failed:', err)
     })
 
     return order

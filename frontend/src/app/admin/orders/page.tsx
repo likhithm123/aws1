@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { api } from '@/lib/api'
 import { formatPrice, formatDate } from '@/lib/utils'
 import { StatusBadge } from '@/components/admin/StatusBadge'
-import { TempOrderActivator } from '@/components/admin/TempOrderActivator'
 
 interface AdminOrder {
   id: string
@@ -29,9 +28,6 @@ export default async function AdminOrdersPage() {
   return (
     <section className="space-y-10">
       <h1 className="font-serif text-4xl tracking-luxury">Orders</h1>
-
-      {/* ── Temp order activation panel ── */}
-      <TempOrderActivator />
 
       {/* ── Real orders list ── */}
       {orders.length === 0 ? (

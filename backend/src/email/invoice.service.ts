@@ -69,8 +69,8 @@ export class InvoiceService {
         <div class="container">
           <div class="header">
             <div class="company-info">
-              <h1>MURGDUR</h1>
-              <p>Luxury e-commerce platform</p>
+              <h1>VIT ELECTRONICS</h1>
+              <p>Your Trusted Tech Store</p>
             </div>
             <div class="invoice-info">
               <p><strong>INVOICE</strong></p>
@@ -115,7 +115,7 @@ export class InvoiceService {
           </div>
 
           <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} Murgdur. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} VIT Electronics. All rights reserved.</p>
             <p>Thank you for your business!</p>
           </div>
         </div>
@@ -153,9 +153,9 @@ export class InvoiceService {
 
     if (!order) throw new Error('Order not found')
 
-    const companyName    = (cfg?.invoiceCompanyName    as string) || 'Murgdur'
+    const companyName    = (cfg?.invoiceCompanyName    as string) || 'VIT Electronics'
     const companyAddress = (cfg?.invoiceCompanyAddress as string) || ''
-    const footerText     = (cfg?.invoiceFooterText     as string) || 'Thank you for shopping with Murgdur!'
+    const footerText     = (cfg?.invoiceFooterText     as string) || 'Thank you for shopping with VIT Electronics!'
     const logoUrl        = (cfg?.invoiceLogoUrl        as string) || ''
 
     const doc = new PDFDocument({ margin: 50 });
@@ -176,7 +176,7 @@ export class InvoiceService {
 
     doc.fontSize(20).text(companyName, { align: 'left' });
     if (companyAddress) doc.fontSize(9).text(companyAddress, { align: 'left' })
-    doc.fontSize(10).text('Luxury fashion. Crafted for the extraordinary.');
+    doc.fontSize(10).text('The Future of Tech. Now.');
     doc.moveDown();
 
     doc.fontSize(14).text('INVOICE', { align: 'right' });
