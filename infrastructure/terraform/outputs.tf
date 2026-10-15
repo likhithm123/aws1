@@ -97,3 +97,14 @@ output "cloudwatch_dashboard_name" {
   value       = aws_cloudwatch_dashboard.main.dashboard_name
 }
 
+output "step_functions_state_machine_arn" {
+  description = "AWS Step Functions Order Fulfillment Workflow ARN"
+  value       = aws_sfn_state_machine.order_fulfillment.arn
+}
+
+output "vpc_flow_log_id" {
+  description = "Amazon VPC Flow Log ID"
+  value       = aws_flow_log.main.id
+}
+
+
