@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title:       'Shipping Information',
-  description: 'Complimentary delivery on all Murgdur orders. Learn about our shipping times, delivery partners, and international shipping options.',
+  description: 'Complimentary delivery on all VIT Electronics orders. Learn about our shipping times, delivery partners, and international shipping options.',
   alternates:  { canonical: '/shipping' },
 }
 
@@ -42,7 +42,7 @@ export default function ShippingPage() {
         <section>
           <p className="text-luxury-white text-xs tracking-luxury uppercase mb-3">Packaging</p>
           <p>
-            Every Murgdur order is carefully packaged in our signature boxes with protective
+            Every VIT Electronics order is carefully packaged in our signature boxes with protective
             wrapping to ensure your pieces arrive in pristine condition.
           </p>
         </section>

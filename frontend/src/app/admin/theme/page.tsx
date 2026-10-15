@@ -305,7 +305,7 @@ export default function ThemePage() {
       if (d.faviconUrl              !== undefined) setFaviconUrl(d.faviconUrl ?? '')
       if (d.ogImageUrl              !== undefined) setOgImageUrl(d.ogImageUrl ?? '')
       if (d.invoiceLogoUrl          !== undefined) setInvoiceLogoUrl(d.invoiceLogoUrl ?? '')
-      if (d.invoiceCompanyName      !== undefined) setInvoiceCompanyName(d.invoiceCompanyName ?? 'Murgdur')
+      if (d.invoiceCompanyName      !== undefined) setInvoiceCompanyName(d.invoiceCompanyName ?? 'VIT Electronics')
       if (d.invoiceCompanyAddress   !== undefined) setInvoiceCompanyAddress(d.invoiceCompanyAddress ?? '')
       if (d.invoiceFooterText       !== undefined) setInvoiceFooterText(d.invoiceFooterText ?? '')
       setColors({
@@ -755,7 +755,7 @@ export default function ThemePage() {
               value={whatsappMessageTemplate}
               onChange={e => setWhatsappMessageTemplate(e.target.value)}
               rows={8}
-              placeholder={`Hello Murgdur,\n\nTemp ID: {{tempId}}\n\nI {{customerName}} am interested to purchase:\n{{items}}\n\nTotal: {{total}}\nAddress: {{address}}\n\nCould you please connect me to the digital concierge.`}
+              placeholder={`Hello VIT Electronics,\n\nTemp ID: {{tempId}}\n\nI {{customerName}} am interested to purchase:\n{{items}}\n\nTotal: {{total}}\nAddress: {{address}}\n\nCould you please connect me to the digital concierge.`}
               className="w-full bg-luxury-black border border-luxury-gray text-luxury-white text-xs px-3 py-2 outline-none focus:border-luxury-gold rounded resize-none font-mono leading-relaxed"
             />
           </div>
@@ -774,7 +774,7 @@ export default function ThemePage() {
               <input
                 value={invoiceEmailSubject}
                 onChange={e => setInvoiceEmailSubject(e.target.value)}
-                placeholder="Your Murgdur invoice — {{orderNumber}}"
+                placeholder="Your VIT Electronics invoice — {{orderNumber}}"
                 className="w-full bg-luxury-black border border-luxury-gray text-luxury-white text-sm px-3 py-2 outline-none focus:border-luxury-gold rounded"
               />
             </div>
@@ -880,7 +880,7 @@ export default function ThemePage() {
             <div>
               <label className="text-luxury-muted text-[10px] uppercase tracking-luxury block mb-1">Footer Text (shown at bottom of PDF)</label>
               <input value={invoiceFooterText} onChange={e => setInvoiceFooterText(e.target.value)}
-                placeholder="Thank you for shopping with Murgdur!"
+                placeholder="Thank you for shopping with VIT Electronics!"
                 className="w-full bg-luxury-black border border-luxury-gray text-luxury-white text-sm px-3 py-2 outline-none focus:border-luxury-gold rounded" />
             </div>
           </div>

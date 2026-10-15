@@ -34,22 +34,28 @@ async function main() {
   console.log(`   Password: ${rawPassword}`)
   console.log(`   Role:     ${admin.role}`)
 
-  // ── 2. SITE CONFIG (Default luxury theme & store settings) ────────────────
+  // ── 2. SITE CONFIG ────────────────────────────────────────────────────────
   await prisma.siteConfig.upsert({
     where: { id: 'main' },
-    update: {},
+    update: {
+      siteTitle: 'VIT Electronics',
+      siteMotto: 'Your Trusted Tech Store',
+      footerTagline: 'Quality electronics for every need.',
+      footerNote: '© 2026 VIT Electronics. All rights reserved.',
+      whatsappMessageTemplate: 'Hello VIT Electronics, I would like to inquire about an order.',
+    },
     create: {
       id: 'main',
-      siteTitle: 'MURGDUR',
-      siteMotto: 'Maison Murgdur',
+      siteTitle: 'VIT Electronics',
+      siteMotto: 'Your Trusted Tech Store',
       colorGold: '#c9a96e',
       colorText: '#1a1a1a',
       colorBg: '#ffffff',
       colorMuted: '#6f6c64',
-      footerTagline: 'Luxury fashion crafted for the extraordinary.',
-      footerNote: '© 2026 Murgdur. All rights reserved.',
+      footerTagline: 'Quality electronics for every need.',
+      footerNote: '© 2026 VIT Electronics. All rights reserved.',
       whatsappNumber: '919876543210',
-      whatsappMessageTemplate: 'Hello Murgdur concierge, I would like to inquire about an order.',
+      whatsappMessageTemplate: 'Hello VIT Electronics, I would like to inquire about an order.',
     },
   })
   console.log('✅ Site configuration initialized')

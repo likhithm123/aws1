@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!product) return { title: 'Product Not Found' }
 
   const title       = product.name
-  const description = product.description || `Shop ${product.name} — luxury fashion by Murgdur.`
+  const description = product.description || `Shop ${product.name} — electronics by VIT Electronics.`
   const imageUrl    = product.images?.[0]?.url ?? `${SITE_URL}/og-default.jpg`
   const canonical   = `${SITE_URL}/products/${product.slug}`
 
@@ -86,7 +86,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     sku:        product.sku,
     brand: {
       '@type': 'Brand',
-      name:    'Murgdur',
+      name:    'VIT Electronics',
     },
     image:  product.images?.map(img => img.url) ?? [],
     offers: {
@@ -99,7 +99,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         : 'https://schema.org/OutOfStock',
       seller: {
         '@type': 'Organization',
-        name:    'Murgdur',
+        name:    'VIT Electronics',
       },
     },
   }

@@ -93,7 +93,7 @@ export function NewsletterForm({ inputClassName, buttonClassName, buttonLabel, i
   if (subscribed || status === 'success') {
     return (
       <div className="text-sm space-y-2">
-        <p className="text-luxury-gold">{status === 'success' ? message : 'You are subscribed to the Murgdur Private List.'}</p>
+        <p className="text-luxury-gold">{status === 'success' ? message : 'You are subscribed to the VIT Electronics Newsletter.'}</p>
         <button onClick={handleUnsubscribe} disabled={unsubscribing}
           className="text-luxury-muted text-xs uppercase tracking-luxury hover:text-luxury-white underline transition-colors disabled:opacity-50">
           {unsubscribing ? 'Unsubscribing…' : 'Unsubscribe'}
@@ -106,7 +106,7 @@ export function NewsletterForm({ inputClassName, buttonClassName, buttonLabel, i
     <div>
       {justUnsubscribed && (
         <p className="text-luxury-muted text-sm mb-3">
-          We're sorry to see you go. You've been removed from the Murgdur Private List — our doors are always open should you wish to return.
+          We're sorry to see you go. You've been removed from the VIT Electronics Newsletter — our doors are always open should you wish to return.
         </p>
       )}
       <form onSubmit={handleSubmit} className={layoutClassName}>

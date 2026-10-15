@@ -35,7 +35,7 @@ export interface TextStyle {
 
 export type TextStyleKey =
   | 'navTitle'         // Navbar wordmark
-  | 'navMotto'         // Navbar tagline / subheading (e.g. "Maison Murgdur")
+  | 'navMotto'         // Navbar tagline / subheading (e.g. "VIT Electronics")
   | 'navLinks'         // Nav menu / drawer links
   | 'heroHeadline'     // Hero slider big headline
   | 'heroSubheading'   // Hero slider sub-line
