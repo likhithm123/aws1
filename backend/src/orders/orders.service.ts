@@ -142,7 +142,7 @@ export class OrdersService {
       // Fetch custom invoice template from site config if set
       const cfg = await this.prisma.siteConfig.findUnique({ where: { id: 'main' } })
       const subject = (cfg?.invoiceEmailSubject as string)?.trim()
-        || `Your Murgdur invoice — ${order.orderNumber}`
+        || `Your VIT Electronics invoice — ${order.orderNumber}`
       const bodyTemplate = (cfg?.invoiceEmailBody as string)?.trim()
         || `<p>Dear {{customerName}},</p><p>Thank you for your order <strong>{{orderNumber}}</strong>. Please find your invoice attached.</p><p>Total: {{total}}</p>`
       const body = bodyTemplate
