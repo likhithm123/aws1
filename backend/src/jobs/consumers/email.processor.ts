@@ -17,7 +17,7 @@ export class EmailProcessor extends WorkerHost {
     const { to, subject, html } = job.data
     try {
       await this.transporter.sendMail({
-        from: process.env.SMTP_FROM ?? 'noreply@murgdur.com',
+        from: process.env.SMTP_FROM ?? 'noreply@vitelectronics.com',
         to, subject, html,
       })
       console.log(`✅ Email sent to ${to}`)

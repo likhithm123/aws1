@@ -5,15 +5,16 @@
 
 aws_region         = "us-east-1"
 environment        = "production"
-project_name       = "murgdur"
+project_name       = "vitelectronics"
 
 # Email where you will receive the $1 AWS Budget threshold alerts and SNS order alerts
-budget_alert_email = "your-email@example.com"
+budget_alert_email = "admin@vitelectronics.com"
 
 # RDS Database Master Credentials (Keep secure)
 db_username        = "postgres"
-db_password        = "MurgdurSecure2026!"
-db_name            = "murgdurV2"
+db_password        = "VitElectronics2026!"
+db_name            = "vitelectronics"
+use_existing_db    = false
 
 # Free Tier Compute Sizing
 ec2_instance_type  = "t3.micro"

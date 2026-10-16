@@ -1,6 +1,6 @@
-# Murgdur
+# VIT ELECTRONICS
 
-A luxury fashion e-commerce platform built with Next.js 16 and NestJS 11. Includes a full customer storefront, admin portal, product/order management, WhatsApp concierge ordering, media uploads, SEO, Google OAuth, and rate-limited authentication.
+A next-generation tech & smart gadgets e-commerce platform built with Next.js 16 and NestJS 11, natively integrated with 23 AWS services including Amazon RDS PostgreSQL, S3, CloudFront, SQS, SNS, and EC2. Includes a full storefront, admin portal, product/order management, WhatsApp concierge, branded invoice PDFs, and rate-limited authentication.
 
 ---
 
@@ -83,7 +83,7 @@ A luxury fashion e-commerce platform built with Next.js 16 and NestJS 11. Includ
 ## Project Structure
 
 ```
-MurgdurV2/
+vit-electronics/
 ├── backend/                   NestJS 11 API server
 │   ├── prisma/
 │   │   ├── schema.prisma      Database schema — all models defined here
@@ -166,8 +166,8 @@ Install these before starting:
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/your-username/murgdur.git
-cd murgdur
+git clone https://github.com/likhithm123/AWS-PROJECT.git vit-electronics
+cd vit-electronics
 ```
 
 ### 2. Start local services (postgres, redis)
@@ -221,8 +221,8 @@ npm run dev                  # starts Next.js on http://localhost:3000
 
 ```env
 # ── Database ─────────────────────────────────────────────────────────────────
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/murgdurV2?schema=public"
-# For Docker production: host must be "postgres" (the service name), not "localhost"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/vitelectronics?schema=public"
+# For AWS RDS production: postgresql://postgres:VitElectronics2026!@<RDS_ENDPOINT>/vitelectronics?schema=public
 
 # ── Redis ────────────────────────────────────────────────────────────────────
 REDIS_URL="redis://localhost:6379"
@@ -237,8 +237,8 @@ JWT_REFRESH_SECRET="change-me-different-secret"
 
 # ── AWS S3 & CloudFront (media storage) ──────────────────────────────────────
 AWS_REGION="us-east-1"
-AWS_S3_BUCKET="murgdur-media"
-AWS_CLOUDFRONT_DOMAIN="https://media.murgdur.com"
+AWS_S3_BUCKET="vitelectronics-media"
+AWS_CLOUDFRONT_DOMAIN="https://media.vitelectronics.com"
 AWS_ACCESS_KEY_ID=""
 AWS_SECRET_ACCESS_KEY=""
 
@@ -252,11 +252,11 @@ SMTP_PORT=587
 SMTP_USER="your@gmail.com"
 SMTP_PASS="your-app-password"
 # For Gmail: generate an App Password at myaccount.google.com/apppasswords
-SMTP_FROM="Murgdur <your@gmail.com>"
+SMTP_FROM="VIT ELECTRONICS <admin@vitelectronics.com>"
 
 # ── Admin seed credentials ────────────────────────────────────────────────────
-ADMIN_EMAIL="admin@murgdur.com"
-ADMIN_PASSWORD="your-secure-admin-password"
+ADMIN_EMAIL="admin@vitelectronics.com"
+ADMIN_PASSWORD="Admin@123"
 # Used by `npx prisma db seed` — ADMIN_PASSWORD is REQUIRED (no fallback)
 
 # ── Monitoring (optional) ─────────────────────────────────────────────────────
@@ -295,11 +295,11 @@ GOOGLE_CLIENT_SECRET=""
 
 
 # ── Media / CDN ──────────────────────────────────────────────────────────────
-NEXT_PUBLIC_CDN_URL="https://media.murgdur.com"
+NEXT_PUBLIC_CDN_URL="https://media.vitelectronics.com"
 # Must match CloudFront domain or custom CDN domain in backend — used by safeCdnUrl()
 
 # ── SEO ──────────────────────────────────────────────────────────────────────
-NEXT_PUBLIC_SITE_URL="https://murgdur.com"
+NEXT_PUBLIC_SITE_URL="https://vitelectronics.com"
 # Your production domain — used for sitemap.xml, robots.txt, canonical URLs, OG tags
 
 # ── Monitoring (optional) ─────────────────────────────────────────────────────
@@ -315,15 +315,15 @@ Amazon S3 stores all media uploads — product images, logos, OG images, favicon
 ### Step 1 — S3 Bucket & CloudFront CDN
 You can provision the S3 bucket and CloudFront distribution automatically using the Terraform templates in `infrastructure/terraform/` (`s3_cloudfront.tf`), or configure manually:
 
-1. In AWS Console: Navigate to **Amazon S3** → Create bucket (e.g. `murgdur-media`).
+1. In AWS Console: Navigate to **Amazon S3** → Create bucket (e.g. `vitelectronics-media`).
 2. Navigate to **Amazon CloudFront** → Create distribution pointing to the S3 bucket as origin.
 3. Configure Origin Access Control (OAC) so the S3 bucket remains private and only accessible via CloudFront.
 
 ### Step 2 — Configure Environment Variables
 Set the following in `backend/.env`:
 - `AWS_REGION` — e.g. `us-east-1`
-- `AWS_S3_BUCKET` — e.g. `murgdur-media`
-- `AWS_CLOUDFRONT_DOMAIN` — e.g. `https://media.murgdur.com` (or `https://dXXXXXXXXX.cloudfront.net`)
+- `AWS_S3_BUCKET` — e.g. `vitelectronics-media`
+- `AWS_CLOUDFRONT_DOMAIN` — e.g. `https://media.vitelectronics.com` (or `https://dXXXXXXXXX.cloudfront.net`)
 - `AWS_ACCESS_KEY_ID` & `AWS_SECRET_ACCESS_KEY` — IAM credentials (or use EC2 instance role in production)
 - Set `NEXT_PUBLIC_CDN_URL` in `frontend/.env.local` to match your CloudFront domain.
 
@@ -378,8 +378,7 @@ npx prisma db seed
 
 For Docker (after deploying):
 ```bash
-docker cp backend/prisma/seed.js murgdur-backend:/app/prisma/seed.js
-docker exec murgdur-backend node prisma/seed.js
+docker compose -f infrastructure/docker-compose.prod.yml --env-file .env exec -T backend node prisma/seed.js
 ```
 
 ### Prisma Studio
@@ -392,7 +391,7 @@ npx prisma studio
 
 > **To manage the Docker database via Prisma Studio**, temporarily change `DATABASE_URL` in `backend/.env` to:
 > ```
-> DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/murgdur?schema=public"
+> DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/vitelectronics?schema=public"
 > ```
 > Then run `npx prisma studio`. Change it back when done.
 
@@ -405,40 +404,36 @@ npx prisma studio
 Key values to set (copy from `backend/.env.example` and add frontend vars):
 
 ```env
-POSTGRES_PASSWORD="your-strong-password"
-DATABASE_URL="postgresql://postgres:your-strong-password@postgres:5432/murgdur?schema=public"
+```env
+DATABASE_URL="postgresql://postgres:VitElectronics2026!@<RDS_ENDPOINT>/vitelectronics?schema=public"
+REDIS_URL="redis://redis:6379"
 JWT_SECRET="your-32-char-secret"           # openssl rand -hex 32
 JWT_REFRESH_SECRET="your-other-32-char-secret"
 NEXTAUTH_SECRET="your-nextauth-secret"
 AUTH_SECRET="your-nextauth-secret"          # same as NEXTAUTH_SECRET
-AUTH_URL="http://localhost:3000"
-NEXTAUTH_URL="http://localhost:3000"
-AWS_OPENSEARCH_ENDPOINT=""
-ADMIN_EMAIL="admin@murgdur.com"
-ADMIN_PASSWORD="your-secure-admin-password"
-NEXT_PUBLIC_GOOGLE_ENABLED="true"           # if using Google OAuth
-GOOGLE_CLIENT_ID="your-client-id"
-GOOGLE_CLIENT_SECRET="your-client-secret"
-NEXT_PUBLIC_CDN_URL="https://media.murgdur.com"
-AWS_CLOUDFRONT_DOMAIN="https://media.murgdur.com"
-AWS_S3_BUCKET="murgdur-media"
+AUTH_URL="http://<EC2_PUBLIC_IP>:3000"
+NEXTAUTH_URL="http://<EC2_PUBLIC_IP>:3000"
+AWS_REGION="us-east-1"
+AWS_S3_BUCKET="<S3_BUCKET_NAME>"
+AWS_CLOUDFRONT_DOMAIN="<CLOUDFRONT_DOMAIN>"
+ADMIN_EMAIL="admin@vitelectronics.com"
+ADMIN_PASSWORD="Admin@123"
+NEXT_PUBLIC_CDN_URL="<CLOUDFRONT_DOMAIN>"
+NEXT_PUBLIC_SITE_URL="http://<EC2_PUBLIC_IP>:3000"
 ```
 
 ### 2. Build and start everything
 
-```powershell
+```bash
 docker compose -f infrastructure/docker-compose.prod.yml --env-file .env up -d --build
 ```
 
-Prisma migrations run automatically. All services start in the correct dependency order with health checks.
-
-> **Note:** `NEXT_PUBLIC_*` variables are baked in at build time via Docker build args — they must be in `.env` before building the frontend image.
+Prisma migrations run automatically against AWS RDS. All services start with health checks.
 
 ### 3. Seed the production database (first deploy only)
 
-```powershell
-docker cp backend/prisma/seed.js murgdur-backend:/app/prisma/seed.js
-docker exec murgdur-backend node prisma/seed.js
+```bash
+docker compose -f infrastructure/docker-compose.prod.yml --env-file .env exec -T backend node prisma/seed.js
 ```
 
 ### 4. Update after a code change
@@ -479,7 +474,7 @@ All `to` and `subject` headers are sanitized to strip `\r\n` characters — prev
 
 ### URL Sanitization
 - `safeUrl()` — validates protocol is http/https, returns `parsed.href` (not raw input)
-- `safeCdnUrl()` — additionally validates hostname against trusted CDN domain allowlist (`*.cloudfront.net`, `*.amazonaws.com`, `media.murgdur.com`). Used for all media `src`/`href` attributes in the admin portal.
+- `safeCdnUrl()` — additionally validates hostname against trusted CDN domain allowlist (`*.cloudfront.net`, `*.amazonaws.com`, `media.vitelectronics.com`). Used for all media `src`/`href` attributes in the admin portal.
 
 ### CSS Injection Prevention
 Dynamic CSS injected via `<style>` tag is sanitized through `sanitizeCssValue()` which strips non-printable characters and `</style>` sequences before injection.

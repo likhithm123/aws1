@@ -1,37 +1,13 @@
-# Production Docker Compose — runs the full Murgdur stack.
+# Production Docker Compose — runs VIT ELECTRONICS natively connected to AWS RDS PostgreSQL.
 # Usage:
 #   docker compose -f infrastructure/docker-compose.prod.yml up -d --build
-#
-# Required .env file at the project root (or pass via --env-file):
-#   DATABASE_URL, REDIS_URL, JWT_SECRET, NEXTAUTH_SECRET, NEXTAUTH_URL,
-#   AWS_REGION, AWS_S3_BUCKET, AWS_CLOUDFRONT_DOMAIN, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
-#   AWS_OPENSEARCH_ENDPOINT, INTERNAL_API_URL, NEXT_PUBLIC_API_URL, NEXT_PUBLIC_CDN_URL,
-#   SENTRY_DSN (optional), ADMIN_EMAIL (optional)
 
 services:
 
-  # ── Data stores ──────────────────────────────────────────────────────────────
-
-  postgres:
-    image: postgres:16-alpine
-    container_name: murgdur-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER:     ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB:       ${POSTGRES_DB:-murgdur}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks: [murgdur]
-
+  # ── Redis Cache & Queue ──────────────────────────────────────────────────────
   redis:
     image: redis:7-alpine
-    container_name: murgdur-redis
+    container_name: vit-redis
     restart: unless-stopped
     command: redis-server --appendonly yes
     volumes:
@@ -41,43 +17,36 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks: [murgdur]
+    networks: [vit-network]
 
-  # ── Database migration (runs once before backend starts) ──────────────────────
-
+  # ── Database migration (runs against AWS RDS PostgreSQL before backend starts)
   migrate:
     build:
       context: ../backend
       dockerfile: Dockerfile
-    container_name: murgdur-migrate
+    container_name: vit-migrate
     command: ["npx", "--yes", "prisma@5", "migrate", "deploy"]
     env_file: ../.env
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-murgdur}?schema=public}
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks: [murgdur]
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-vitelectronics}?schema=public}
+    networks: [vit-network]
     restart: "no"
 
-  # ── Application ───────────────────────────────────────────────────────────────
-
+  # ── Application API Backend ──────────────────────────────────────────────────
   backend:
     build:
       context: ../backend
       dockerfile: Dockerfile
-    container_name: murgdur-backend
+    container_name: vit-backend
     restart: unless-stopped
     env_file: ../.env
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-murgdur}?schema=public}
-      REDIS_URL: redis://redis:6379
-      NODE_ENV:  production
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-vitelectronics}?schema=public}
+      REDIS_URL:    ${REDIS_URL:-redis://redis:6379}
+      NODE_ENV:     production
     ports:
       - "3001:3001"
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_healthy
       migrate:
@@ -90,18 +59,19 @@ services:
     dns:
       - 8.8.8.8
       - 8.8.4.4
-    networks: [murgdur]
+    networks: [vit-network]
 
+  # ── Application Storefront Frontend ──────────────────────────────────────────
   frontend:
     build:
       context: ../frontend
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_GOOGLE_ENABLED: ${NEXT_PUBLIC_GOOGLE_ENABLED:-false}
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
-        NEXT_PUBLIC_CDN_URL: ${NEXT_PUBLIC_CDN_URL:-https://media.murgdur.com}
-        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://murgdur.com}
-    container_name: murgdur-frontend
+        NEXT_PUBLIC_API_URL:        ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+        NEXT_PUBLIC_CDN_URL:        ${NEXT_PUBLIC_CDN_URL:-}
+        NEXT_PUBLIC_SITE_URL:       ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    container_name: vit-frontend
     restart: unless-stopped
     env_file: ../.env
     environment:
@@ -119,12 +89,11 @@ services:
     dns:
       - 8.8.8.8
       - 8.8.4.4
-    networks: [murgdur]
+    networks: [vit-network]
 
 volumes:
-  postgres_data:
   redis_data:
 
 networks:
-  murgdur:
+  vit-network:
     driver: bridge

@@ -30,6 +30,6 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter())
 
   await app.listen(process.env.PORT ?? 3001)
-  console.log(`🚀 Murgdur API running on port ${process.env.PORT ?? 3001}`)
+  console.log(`🚀 VIT Electronics API running on port ${process.env.PORT ?? 3001}`)
 }
 bootstrap()

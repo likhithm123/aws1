@@ -4,7 +4,7 @@ import { useCurrency } from '@/context/CurrencyContext'
 import { COUNTRIES } from '@/lib/countries'
 import { lenisStore } from '@/lib/lenis'
 
-const STORAGE_KEY = 'murgdur-locale-prompted'
+const STORAGE_KEY = 'vit-locale-prompted'
 
 export function LocalizationPrompt() {
   const { country, setCountry } = useCurrency()

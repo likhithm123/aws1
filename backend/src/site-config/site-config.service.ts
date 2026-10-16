@@ -9,9 +9,9 @@ const DEFAULT_BUTTONS = [
 ]
 
 const DEFAULT_PRODUCT_ACCORDIONS = [
-  { title: 'Find in Store',     content: 'Visit any Murgdur boutique to see this piece in person. Our stylists are available to assist with sizing and styling advice.' },
-  { title: 'Delivery & Returns', content: 'Complimentary delivery on all orders. Returns accepted within 14 days of receipt in unworn, original condition with all tags attached.' },
-  { title: 'Gifting',           content: 'Add a personalised gift message and complimentary gift wrap at checkout. Available on all orders.' },
+  { title: 'Find in Store',     content: 'Visit any VIT Electronics store to see this product in person. Our specialists are available to assist with specs and demonstrations.' },
+  { title: 'Delivery & Returns', content: 'Complimentary expedited delivery on all orders. Returns accepted within 14 days of receipt in brand new condition.' },
+  { title: 'Warranty & Support', content: '1-Year Comprehensive Warranty and 24/7 dedicated customer service available on all products.' },
 ]
 
 const DEFAULT_FOOTER_COLUMNS = [
@@ -43,11 +43,11 @@ export const DEFAULT_HOMEPAGE_SECTIONS = [
   {
     id: 'editorial',
     isActive: true,
-    eyebrow: 'Maison Murgdur',
-    headline: 'Crafted in silence, worn in confidence.',
-    description: 'Every piece begins as an idea refined over months — patterns cut by hand, fabrics chosen for how they age, not just how they arrive. This is design built to outlast the season it was made for.',
-    buttonLabel: 'Explore the Collection',
-    buttonUrl: '/collections/new-arrivals',
+    eyebrow: 'VIT Electronics',
+    headline: 'Precision Performance. Pure Innovation.',
+    description: 'Every product is engineered with premium components, rigorous quality standards, and next-generation architecture. Built to deliver uncompromising performance.',
+    buttonLabel: 'Explore Devices',
+    buttonUrl: '/collections/smart-devices',
   },
   {
     id: 'philosophy',

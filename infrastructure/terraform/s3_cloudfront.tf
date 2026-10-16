@@ -73,7 +73,7 @@ resource "aws_s3_bucket_cors_configuration" "media" {
 # ── CloudFront Origin Access Control (OAC) ────────────────────
 resource "aws_cloudfront_origin_access_control" "oac" {
   name                              = "${var.project_name}-s3-oac"
-  description                       = "OAC policy for Murgdur S3 media bucket"
+  description                       = "OAC policy for VIT Electronics S3 media bucket"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"

@@ -21,7 +21,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'media.murgdur.com',
+        hostname: 'media.vitelectronics.com',
       },
       {
         protocol: 'https',

@@ -10,8 +10,8 @@ COPY . .
 # Build-time public env vars — must be ARG+ENV so Next.js bakes them in during build
 ARG NEXT_PUBLIC_GOOGLE_ENABLED=false
 ARG NEXT_PUBLIC_API_URL=http://localhost:3001
-ARG NEXT_PUBLIC_CDN_URL=https://media.murgdur.com
-ARG NEXT_PUBLIC_SITE_URL=https://murgdur.com
+ARG NEXT_PUBLIC_CDN_URL=https://media.vitelectronics.com
+ARG NEXT_PUBLIC_SITE_URL=https://vitelectronics.com
 ENV NEXT_PUBLIC_GOOGLE_ENABLED=$NEXT_PUBLIC_GOOGLE_ENABLED
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_CDN_URL=$NEXT_PUBLIC_CDN_URL

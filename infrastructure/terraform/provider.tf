@@ -18,7 +18,7 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Project     = "Murgdur"
+      Project     = "VITElectronics"
       Environment = var.environment
       ManagedBy   = "Terraform"
       CostCenter  = "FreeTier"

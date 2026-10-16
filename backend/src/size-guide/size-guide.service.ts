@@ -104,10 +104,10 @@ export class SizeGuideService {
   async uploadImage(file: Express.Multer.File): Promise<string> {
     const safeName = file.originalname.replace(/\s+/g, '-').toLowerCase()
     const key = `size-guides/${Date.now()}-${safeName}`
-    const bucket = process.env.AWS_S3_BUCKET || 'murgdur-media'
+    const bucket = process.env.AWS_S3_BUCKET || 'vitelectronics-media'
     const cdnBase = process.env.AWS_CLOUDFRONT_DOMAIN
       ? (process.env.AWS_CLOUDFRONT_DOMAIN.startsWith('http') ? process.env.AWS_CLOUDFRONT_DOMAIN : `https://${process.env.AWS_CLOUDFRONT_DOMAIN}`)
-      : (process.env.NEXT_PUBLIC_CDN_URL || 'https://media.murgdur.com')
+      : (process.env.NEXT_PUBLIC_CDN_URL || 'https://media.vitelectronics.com')
 
     await this.s3.send(new PutObjectCommand({
       Bucket:      bucket,

@@ -24,7 +24,7 @@ export class MediaProcessorWorker extends WorkerHost {
       { suffix: 'thumb',  width: 400  },
     ]
 
-    const bucket = process.env.AWS_S3_BUCKET || 'murgdur-media'
+    const bucket = process.env.AWS_S3_BUCKET || 'vitelectronics-media'
     for (const { suffix, width } of sizes) {
       const webp = await sharp(Buffer.from(buffer))
         .resize(width).webp({ quality: 90 }).toBuffer()

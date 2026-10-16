@@ -5,8 +5,8 @@ import { api } from '@/lib/api'
 import { useAuth } from '@/hooks/useAuth'
 import { useButton } from '@/context/SiteConfigContext'
 
-const STORAGE_KEY = 'murgdur_newsletter_subscribed'
-const STORAGE_EMAIL_KEY = 'murgdur_newsletter_email'
+const STORAGE_KEY = 'vit_newsletter_subscribed'
+const STORAGE_EMAIL_KEY = 'vit_newsletter_email'
 
 interface NewsletterFormProps {
   inputClassName: string

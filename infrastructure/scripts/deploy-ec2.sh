@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-# Deploy Murgdur on Amazon EC2 (Free Tier)
+# Deploy VIT ELECTRONICS on Amazon EC2 & AWS RDS
 # ============================================================
 
 set -euo pipefail
@@ -11,13 +11,13 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 cd "$ROOT_DIR"
 
 echo "=================================================="
-echo "🚀 Deploying Murgdur on Amazon EC2"
+echo "🚀 Deploying VIT ELECTRONICS on Amazon AWS"
 echo "=================================================="
 
 # Check for .env file
 if [ ! -f .env ]; then
-  echo "⚠️ .env file not found at root. Creating from template..."
-  cp backend/.env .env 2>/dev/null || true
+  echo "⚠️ .env file not found at root. Creating from .env.example..."
+  cp .env.example .env
 fi
 
 # Ensure Docker is running
@@ -26,14 +26,8 @@ if ! systemctl is-active --quiet docker; then
   sudo systemctl start docker
 fi
 
-echo "📦 Building backend container..."
-docker compose --env-file .env -f infrastructure/docker-compose.prod.yml build backend
-
-echo "📦 Building frontend container..."
-docker compose --env-file .env -f infrastructure/docker-compose.prod.yml build frontend
-
-echo "🚀 Starting all Murgdur/VIT containers..."
-docker compose --env-file .env -f infrastructure/docker-compose.prod.yml up -d
+echo "📦 Building and starting VIT ELECTRONICS containers (Redis, Migrations, Backend, Frontend)..."
+docker compose --env-file .env -f infrastructure/docker-compose.prod.yml up -d --build
 
 echo "⏳ Waiting for backend health check..."
 for i in {1..30}; do
@@ -45,10 +39,15 @@ for i in {1..30}; do
   sleep 3
 done
 
-echo "🌱 Seeding database with admin user & initial config..."
+echo "🌱 Seeding AWS RDS PostgreSQL database with VIT ELECTRONICS admin & initial store config..."
 docker compose --env-file .env -f infrastructure/docker-compose.prod.yml exec -T backend node prisma/seed.js || true
 
-echo "🎉 Deployment complete!"
-echo "  Frontend:  http://$(curl -s http://checkip.amazonaws.com):3000"
-echo "  Admin:     http://$(curl -s http://checkip.amazonaws.com):3000/admin"
-echo "  Backend:   http://$(curl -s http://checkip.amazonaws.com):3001"
+PUBLIC_IP=$(curl -s http://checkip.amazonaws.com || echo "localhost")
+
+echo "=================================================="
+echo "🎉 VIT ELECTRONICS Deployment complete!"
+echo "  Frontend Store: http://${PUBLIC_IP}:3000"
+echo "  Admin Portal:   http://${PUBLIC_IP}:3000/admin"
+echo "  Backend API:    http://${PUBLIC_IP}:3001"
+echo "  Admin Login:    admin@vitelectronics.com / Admin@123"
+echo "=================================================="

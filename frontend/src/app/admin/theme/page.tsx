@@ -866,7 +866,7 @@ export default function ThemePage() {
               <div>
                 <label className="text-luxury-muted text-[10px] uppercase tracking-luxury block mb-1">Company Name</label>
                 <input value={invoiceCompanyName} onChange={e => setInvoiceCompanyName(e.target.value)}
-                  placeholder="Murgdur"
+                  placeholder="VIT Electronics"
                   className="w-full bg-luxury-black border border-luxury-gray text-luxury-white text-sm px-3 py-2 outline-none focus:border-luxury-gold rounded" />
               </div>
               <div>

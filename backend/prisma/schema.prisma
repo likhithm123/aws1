@@ -1,5 +1,5 @@
 // ============================================================
-// MURGDUR LUXURY PLATFORM — Prisma Schema
+// VIT ELECTRONICS PLATFORM — Prisma Schema
 // ============================================================
 
 generator client {
@@ -462,17 +462,17 @@ model SiteConfig {
   fontSize      Int      @default(16)
   fontWeight    String   @default("400")
   fontStyle     String   @default("normal")
-  siteTitle     String   @default("MURGDUR")
-  siteMotto     String   @default("Maison Murgdur")
+  siteTitle     String   @default("VIT ELECTRONICS")
+  siteMotto     String   @default("VIT Electronics")
   buttons       Json     @default("[]")
-  // Brand colours (stored as hex, e.g. "#c9a96e")
-  colorGold     String   @default("#c9a96e")
+  // Brand colours (stored as hex, e.g. "#00f0ff")
+  colorGold     String   @default("#00f0ff")
   colorText     String   @default("#1a1a1a")
   colorBg       String   @default("#ffffff")
-  colorMuted    String   @default("#6f6c64")
+  colorMuted    String   @default("#64748b")
   // Footer content
-  footerTagline      String   @default("Luxury fashion crafted for the extraordinary.")
-  footerNote         String   @default("© 2026 Murgdur. All rights reserved.")
+  footerTagline      String   @default("Next-generation gadgets, intelligent hardware & smart technology.")
+  footerNote         String   @default("© 2026 VIT ELECTRONICS. All rights reserved.")
   footerColumns      Json     @default("[]")
   textStyles         Json     @default("{}")
   productAccordions      Json     @default("[]")
@@ -498,12 +498,12 @@ model SiteConfig {
   ogImageUrl               String  @default("")   // default OG image for social share previews
   // Invoice PDF content customisation
   invoiceLogoUrl           String  @default("")   // logo image shown top-left of PDF
-  invoiceCompanyName       String  @default("Murgdur")
+  invoiceCompanyName       String  @default("VIT ELECTRONICS")
   invoiceCompanyAddress    String  @default("")
-  invoiceFooterText        String  @default("Thank you for shopping with Murgdur!")
+  invoiceFooterText        String  @default("Thank you for choosing VIT Electronics!")
   // Size guide drawer footer
-  sizeGuideContactText     String   @default("Need help with sizing?")
-  sizeGuideContactLinkText String   @default("Contact our stylists")
+  sizeGuideContactText     String   @default("Need help with technical specifications?")
+  sizeGuideContactLinkText String   @default("Contact tech support")
   sizeGuideContactLinkUrl  String   @default("/contact")
   updatedAt     DateTime @updatedAt
 

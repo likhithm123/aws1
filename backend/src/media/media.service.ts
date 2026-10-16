@@ -8,7 +8,7 @@ export class MediaService {
   constructor(private prisma: PrismaService) {}
 
   private get bucketName(): string {
-    return process.env.AWS_S3_BUCKET || 'murgdur-media'
+    return process.env.AWS_S3_BUCKET || 'vitelectronics-media'
   }
 
   private get publicCdnUrl(): string {
@@ -16,7 +16,7 @@ export class MediaService {
       const domain = process.env.AWS_CLOUDFRONT_DOMAIN.trim()
       return domain.startsWith('http') ? domain : `https://${domain}`
     }
-    return process.env.NEXT_PUBLIC_CDN_URL || 'https://media.murgdur.com'
+    return process.env.NEXT_PUBLIC_CDN_URL || 'https://media.vitelectronics.com'
   }
 
   private s3 = (() => {

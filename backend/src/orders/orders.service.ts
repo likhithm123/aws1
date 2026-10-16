@@ -38,7 +38,7 @@ export class OrdersService {
     shipping:  number
     total:     number
   }) {
-    const orderNumber = `MRG-${Math.floor(100000 + Math.random() * 900000)}`
+    const orderNumber = `VIT-ORD-${Math.floor(100000 + Math.random() * 900000)}`
 
     const itemsData = await Promise.all(dto.items.map(async item => {
       const product = await this.prisma.product.findUnique({
@@ -113,10 +113,10 @@ export class OrdersService {
       const pdf = await this.invoice.generateInvoicePdf(orderId)
 
       // Upload PDF to S3
-      const bucket = process.env.AWS_S3_BUCKET || 'murgdur-media'
+      const bucket = process.env.AWS_S3_BUCKET || 'vitelectronics-media'
       const cdnBase = process.env.AWS_CLOUDFRONT_DOMAIN
         ? (process.env.AWS_CLOUDFRONT_DOMAIN.startsWith('http') ? process.env.AWS_CLOUDFRONT_DOMAIN : `https://${process.env.AWS_CLOUDFRONT_DOMAIN}`)
-        : (process.env.NEXT_PUBLIC_CDN_URL || 'https://media.murgdur.com')
+        : (process.env.NEXT_PUBLIC_CDN_URL || 'https://media.vitelectronics.com')
 
       const key = `invoices/${order.orderNumber}.pdf`
       await s3Client.send(new PutObjectCommand({

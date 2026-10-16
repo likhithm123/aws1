@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS Region to deploy resources"
   type        = string
-  default     = "ap-southeast-2"
+  default     = "us-east-1"
 }
 
 variable "environment" {
@@ -13,13 +13,13 @@ variable "environment" {
 variable "project_name" {
   description = "Prefix name for all resources"
   type        = string
-  default     = "murgdur"
+  default     = "vitelectronics"
 }
 
 variable "budget_alert_email" {
   description = "Email address for AWS Free Tier and $1 budget threshold alerts"
   type        = string
-  default     = "admin@murgdur.com"
+  default     = "admin@vitelectronics.com"
 }
 
 variable "db_username" {
@@ -32,25 +32,25 @@ variable "db_password" {
   description = "Master password for RDS PostgreSQL (minimum 8 characters)"
   type        = string
   sensitive   = true
-  default     = "MurgdurSecure2026!"
+  default     = "VitElectronics2026!"
 }
 
 variable "use_existing_db" {
-  description = "Whether to use an existing RDS instance instead of creating a new one (prevents Free Tier quota limit errors)"
+  description = "Whether to use an existing RDS instance instead of creating a new one (set to false for fresh AWS account deployment)"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "existing_db_instance_identifier" {
-  description = "Identifier of the existing RDS database to connect to"
+  description = "Identifier of the existing RDS database to connect to (if use_existing_db is true)"
   type        = string
-  default     = "database-1"
+  default     = ""
 }
 
 variable "db_name" {
-  description = "Database name for Murgdur"
+  description = "Database name for VIT Electronics (alphanumeric only)"
   type        = string
-  default     = "postgres"
+  default     = "vitelectronics"
 }
 
 variable "ec2_instance_type" {
@@ -68,7 +68,7 @@ variable "ec2_key_name" {
 variable "app_repo_url" {
   description = "Git repository URL to clone on EC2 initialization"
   type        = string
-  default     = "https://github.com/your-username/murgdur.git"
+  default     = "https://github.com/likhithm123/AWS-PROJECT.git"
 }
 
 variable "enable_opensearch" {

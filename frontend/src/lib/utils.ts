@@ -28,7 +28,7 @@ export function safeUrl(url: string | null | undefined): string {
 }
 
 // Trusted CDN domains — media uploaded through the admin portal
-const TRUSTED_CDN_HOSTS    = ['media.murgdur.com', 'localhost']
+const TRUSTED_CDN_HOSTS    = ['media.vitelectronics.com', 'localhost']
 const TRUSTED_CDN_SUFFIXES = ['.cloudfront.net', '.amazonaws.com']
 
 /** Like safeUrl() but also enforces the URL belongs to a trusted CDN domain.

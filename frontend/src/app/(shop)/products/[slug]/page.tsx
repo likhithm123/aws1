@@ -6,7 +6,7 @@ import type { Product } from '@/types/product'
 
 export const dynamic = 'force-dynamic'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://murgdur.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://vitelectronics.com'
 
 async function getProduct(slug: string): Promise<Product | null> {
   try {

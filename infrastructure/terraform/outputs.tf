@@ -3,7 +3,7 @@
 # ============================================================
 
 output "ec2_public_ip" {
-  description = "Static Elastic IP of the Murgdur EC2 App Server"
+  description = "Static Elastic IP of the VIT Electronics EC2 App Server"
   value       = aws_eip.app_ip.public_ip
 }
 
@@ -13,7 +13,7 @@ output "storefront_url" {
 }
 
 output "admin_portal_url" {
-  description = "Murgdur Admin Portal URL"
+  description = "VIT Electronics Admin Portal URL"
   value       = "http://${aws_eip.app_ip.public_ip}:3000/admin"
 }
 

@@ -96,10 +96,10 @@ export class EmailService {
                 .join('')}
               <div class="total">Total: ₹${totalAmount}</div>
               <p>Your order will be processed soon. You will receive a shipping update shortly.</p>
-              <p>Thank you for shopping with Murgdur!</p>
+              <p>Thank you for shopping with VIT Electronics!</p>
             </div>
             <div class="footer">
-              <p>&copy; 2024 Murgdur. All rights reserved.</p>
+              <p>&copy; 2026 VIT Electronics. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -145,10 +145,10 @@ export class EmailService {
                 <p><strong>Carrier:</strong> ${carrier}</p>
                 <p>You can track your order using the tracking number above.</p>
               </div>
-              <p>Thank you for shopping with Murgdur!</p>
+              <p>Thank you for shopping with VIT Electronics!</p>
             </div>
             <div class="footer">
-              <p>&copy; 2024 Murgdur. All rights reserved.</p>
+              <p>&copy; 2026 VIT Electronics. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -186,10 +186,10 @@ export class EmailService {
             <div class="content">
               <p>Hi ${customerName},</p>
               <p>Please find attached your invoice for order <strong>${orderId}</strong>.</p>
-              <p>Thank you for shopping with Murgdur!</p>
+              <p>Thank you for shopping with VIT Electronics!</p>
             </div>
             <div class="footer">
-              <p>&copy; 2024 Murgdur. All rights reserved.</p>
+              <p>&copy; 2026 VIT Electronics. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -242,10 +242,10 @@ export class EmailService {
                 <p>The refund will be credited to your original payment method within 5-7 business days.</p>
               </div>
               <p>If you have any questions, please contact us.</p>
-              <p>Thank you for shopping with Murgdur!</p>
+              <p>Thank you for shopping with VIT Electronics!</p>
             </div>
             <div class="footer">
-              <p>&copy; 2024 Murgdur. All rights reserved.</p>
+              <p>&copy; 2026 VIT Electronics. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -274,24 +274,24 @@ export class EmailService {
         <body>
           <div class="container">
             <div class="header">
-              <h1>MURGDUR</h1>
+              <h1>VIT ELECTRONICS</h1>
             </div>
             <div class="content">
               <p>Hello,</p>
-              <p>Thank you for subscribing to the <span class="gold">Murgdur</span> Private List!</p>
-              <p>You'll now be the first to know about new collections, limited releases, private events, and curated editorial stories from Maison Murgdur.</p>
-              <p>Welcome to the world of timeless luxury.</p>
-              <p>Warm regards,<br/>The Murgdur Team</p>
+              <p>Thank you for subscribing to the <span class="gold">VIT Electronics</span> VIP List!</p>
+              <p>You'll now be the first to know about new gadget launches, hardware releases, exclusive tech deals, and firmware announcements.</p>
+              <p>Welcome to next-generation tech.</p>
+              <p>Warm regards,<br/>The VIT Electronics Team</p>
             </div>
             <div class="footer">
-              <p>&copy; 2026 Murgdur. All rights reserved.</p>
+              <p>&copy; 2026 VIT Electronics. All rights reserved.</p>
             </div>
           </div>
         </body>
       </html>
     `;
 
-    return this.sendEmail(email, 'Welcome to the Murgdur Private List', html);
+    return this.sendEmail(email, 'Welcome to the VIT Electronics VIP List', html);
   }
 
   /**
@@ -313,23 +313,23 @@ export class EmailService {
         <body>
           <div class="container">
             <div class="header">
-              <h1>MURGDUR</h1>
+              <h1>VIT ELECTRONICS</h1>
             </div>
             <div class="content">
               <p>Hello,</p>
               <p>We're sorry to see you go.</p>
-              <p>You have been removed from the <span class="gold">Murgdur</span> Private List and will no longer receive news of our collections, private events, and editorial stories.</p>
-              <p>Should you ever wish to return, our doors — and our private list — are always open.</p>
-              <p>Until then, with warm regards,<br/>The Murgdur Team</p>
+              <p>You have been removed from the <span class="gold">VIT Electronics</span> VIP List and will no longer receive announcements regarding new hardware releases or promotions.</p>
+              <p>Should you ever wish to return, our doors are always open.</p>
+              <p>Until then, with warm regards,<br/>The VIT Electronics Team</p>
             </div>
             <div class="footer">
-              <p>&copy; 2026 Murgdur. All rights reserved.</p>
+              <p>&copy; 2026 VIT Electronics. All rights reserved.</p>
             </div>
           </div>
         </body>
       </html>
     `;
 
-    return this.sendEmail(email, 'You have been unsubscribed from the Murgdur Private List', html);
+    return this.sendEmail(email, 'You have been unsubscribed from the VIT Electronics VIP List', html);
   }
 }

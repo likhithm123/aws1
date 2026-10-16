@@ -62,7 +62,7 @@ locals {
               chown -R ubuntu:ubuntu /home/ubuntu/app
 
               # 6. Log readiness
-              echo "Murgdur EC2 Instance initialization completed successfully at $(date)" > /var/log/murgdur-init.log
+              echo "VIT Electronics EC2 Instance initialization completed successfully at $(date)" > /var/log/vitelectronics-init.log
               EOF
 }
 

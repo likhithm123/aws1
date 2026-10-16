@@ -8,7 +8,7 @@ import { api } from '@/lib/api'
 
 export const dynamic = 'force-dynamic'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://murgdur.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://vitelectronics.com'
 
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
   const { category: cat } = await params
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
     const name     = category?.name ?? cat.replace(/-/g, ' ')
     const title    = `${name.charAt(0).toUpperCase() + name.slice(1)} Collection`
     const description = category?.description
-      ?? `Explore the ${name} collection at VIT — next-generation gadgets and smart technology.`
+      ?? `Explore the ${name} collection at VIT Electronics — next-generation gadgets and smart technology.`
     const canonical = `${SITE_URL}/collections/${cat}`
     return {
       title,

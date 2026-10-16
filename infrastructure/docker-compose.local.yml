@@ -2,16 +2,16 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: murgdur-postgres
+    container_name: vit-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Superme2
-      POSTGRES_DB: murgdurV2
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: vitelectronics
     ports:
       - "5432:5432"
     volumes:
-      - murgdur_postgres_data:/var/lib/postgresql/data
+      - vit_postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -20,12 +20,12 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: murgdur-redis
+    container_name: vit-redis
     restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
-      - murgdur_redis_data:/data
+      - vit_redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -39,10 +39,10 @@ services:
     profiles: ["full"]
     build:
       context: ../backend
-    container_name: murgdur-backend
+    container_name: vit-backend
     restart: unless-stopped
     environment:
-      DATABASE_URL: "postgresql://postgres:Superme2@postgres:5432/murgdurV2?schema=public"
+      DATABASE_URL: "postgresql://postgres:postgrespassword@postgres:5432/vitelectronics?schema=public"
       REDIS_URL: "redis://redis:6379"
     ports:
       - "3001:3001"
@@ -58,7 +58,7 @@ services:
       context: ../frontend
       args:
         NEXT_PUBLIC_API_URL: "http://localhost:3001"
-    container_name: murgdur-frontend
+    container_name: vit-frontend
     restart: unless-stopped
     environment:
       INTERNAL_API_URL: "http://backend:3001"
@@ -69,5 +69,5 @@ services:
       - backend
 
 volumes:
-  murgdur_postgres_data:
-  murgdur_redis_data:
+  vit_postgres_data:
+  vit_redis_data:

@@ -1,281 +1,198 @@
-# AWS Cloud Production Deployment Guide
+# VIT ELECTRONICS — AWS Cloud Production Deployment Guide
 
-A complete, step-by-step guide to provisioning and deploying the **Murgdur Luxury Fashion E-Commerce Platform** on **Amazon Web Services (AWS)** from scratch.
+A complete, production-ready guide to provisioning, configuring, and deploying the **VIT ELECTRONICS E-Commerce Platform** on **Amazon Web Services (AWS)** using native AWS cloud services (including managed Amazon RDS PostgreSQL, Amazon S3, Amazon CloudFront, SQS, SNS, and EC2).
 
 ---
 
-## 1. Cloud Architecture Overview
+## 1. AWS Cloud Architecture: 23 Managed Services Overview
 
-The entire platform is hosted natively on AWS services:
+The entire platform is architected to utilize **23 core AWS services**, combining maximum reliability, automated scaling, data durability, security, and strict AWS Free Tier cost guardrails:
 
-| Layer | AWS Service | Purpose & Sizing | Free Tier Eligibility | Estimated Monthly Cost |
+| # | AWS Service | Layer / Category | Resource Name & Purpose in VIT Electronics | Free Tier / Sizing |
 |---|---|---|---|---|
-| **Compute** | **Amazon EC2** (`t3.small` or `t3.micro`) | Runs Docker Compose with Next.js frontend, NestJS backend, Postgres & Redis | 750 hrs/month free (`t3.micro`) | ~$3.60 (IPv4) or ~$14 (`t3.small`) |
-| **Database** | **Docker PostgreSQL 16** (or RDS `db.t4g.micro`) | Containerized on EC2 for zero extra cost (or managed RDS) | 750 hrs/month free (RDS) | $0.00 (Docker) / $0 (RDS Free Tier) |
-| **Search Engine** | **PostgreSQL Search Fallback** | Built into backend; replaces expensive OpenSearch | Always free | $0.00 |
-| **Object Storage** | **Amazon S3** | Private bucket for product images, videos, logos, and invoices | 5 GB standard storage free | < $0.20 |
-| **Content Delivery** | **Amazon CloudFront** | Global edge CDN caching and serving S3 media with OAC | 1 TB/month transfer free | $0.00 |
-| **Networking** | **Amazon VPC** | Isolated VPC with Internet Gateway (no $32/mo NAT Gateways) | Always free | $0.00 |
-| **Messaging** | **Amazon SQS & SNS** | Order processing queue and email notifications | 1,000,000 requests free | $0.00 |
-| **Cost Protection** | **AWS Budgets** | Proactive alert triggered if monthly spend exceeds threshold | Free | $0.00 |
-
-> [!IMPORTANT]
-> **HOW TO MAKE 100 AWS CREDITS LAST 7 TO 20+ MONTHS:**
-> - **Avoid OpenSearch**: Do NOT enable AWS OpenSearch. It costs ~$26/month after trial and burns 100 credits in 3 months! The backend seamlessly falls back to PostgreSQL full-text search at **$0 cost**.
-> - **Avoid NAT Gateways & ALBs**: NAT Gateways cost $32/mo and ALBs cost $20/mo. This setup uses direct Internet Gateway routing.
-> - **Run All-in-One Docker Stack**: `infrastructure/docker-compose.prod.yml` runs Frontend, Backend, PostgreSQL, and Redis in one place.
-> - **Estimated Lifespan**: With EC2 `t3.micro` on Free Tier, total cost is ~$3.60/month (public IPv4 charge), lasting **~24 months**! With a dedicated `t3.small` (2GB RAM), total cost is ~$14/month, lasting **~7 months**!
-
----
-
-## 2. Prerequisites
-
-1. **AWS Account**: An active AWS account ([Create free account](https://aws.amazon.com/free/)).
-2. **Local Tools**:
-   - [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) (`aws --version`)
-   - [Terraform](https://developer.hashicorp.com/terraform/install) >= 1.5.0 (`terraform -version`)
-   - [Git](https://git-scm.com/)
-
----
-
-## 3. Step 1: AWS Credentials & Permissions
-
-1. In the **AWS Console**, navigate to **IAM** → **Users** → **Create User** (e.g. `murgdur-deployer`).
-2. Attach the `AdministratorAccess` policy (or equivalent policy covering VPC, EC2, RDS, S3, CloudFront, SQS, SNS, SSM, CloudWatch, Budgets).
-3. Under **Security credentials**, click **Create access key** (Application running outside AWS).
-4. Save your **Access Key ID** and **Secret Access Key**.
-5. Configure your local environment:
-   ```bash
-   aws configure
-   # AWS Access Key ID: <Your-Access-Key-ID>
-   # AWS Secret Access Key: <Your-Secret-Access-Key>
-   # Default region name: us-east-1
-   # Default output format: json
-   ```
+| **1** | **Amazon VPC** | Networking | `vitelectronics-vpc` — Dedicated private virtual network (10.0.0.0/16) | Free (Always) |
+| **2** | **Amazon VPC Subnets** | Networking | 4 Subnets across 2 Availability Zones (`public-1`, `public-2`, `db-1`, `db-2`) | Free (Always) |
+| **3** | **Amazon Internet Gateway (IGW)** | Networking | `vitelectronics-igw` — Bi-directional direct internet communication | Free (Always) |
+| **4** | **Amazon Route Tables** | Networking | `vitelectronics-public-rt` — Route table associating public subnets to IGW | Free (Always) |
+| **5** | **Amazon VPC Flow Logs** | Network Forensics | `vitelectronics-flow-log` — Captures IP network traffic metadata for security | Free Tier eligible |
+| **6** | **Amazon EC2** | Compute | `vitelectronics-app-server` (`t3.micro`) — Runs Dockerized app containers | 750 hrs/mo free |
+| **7** | **Amazon EBS** | Block Storage | `vitelectronics-ec2-root-ebs` (30 GB gp3 encrypted root block volume) | 30 GB/mo free |
+| **8** | **Amazon Elastic IP (EIP)** | Networking | `vitelectronics-elastic-ip` — Static public IPv4 address attached to EC2 | Standard allocation |
+| **9** | **Amazon ALB (Application Load Balancer)** | Load Balancing | `vitelectronics-alb` — Layer 7 multi-AZ reverse proxy distributing traffic | Standard tier |
+| **10** | **AWS Auto Scaling Group (ASG)** | Compute Scaling | `vitelectronics-asg` — Multi-AZ dynamic fleet management (1–3 instances) | Free tier compute |
+| **11** | **AWS EC2 Launch Template** | Infrastructure as Code | `vitelectronics-launch-template` — Defines Ubuntu AMI, user-data, IAM roles | Free (Always) |
+| **12** | **Amazon RDS PostgreSQL 16** | Managed Database | `vitelectronics-postgres` (`db.t3.micro`, 20 GB gp3) — Managed relational DB | 750 hrs/mo free |
+| **13** | **Amazon S3** | Object Storage | `vitelectronics-media-*` — Private media bucket for images and PDF invoices | 5 GB standard free |
+| **14** | **Amazon CloudFront** | Edge CDN | `vitelectronics-cloudfront-cdn` — Low-latency global CDN with Origin Access Control | 1 TB/mo transfer free |
+| **15** | **Amazon SQS** | Message Queue | `vitelectronics-order-queue` & `orders-dlq` — Decoupled async order processing | 1,000,000 requests free |
+| **16** | **Amazon SNS** | Notification Service | `vitelectronics-order-alerts-topic` — Real-time email and push event alerts | 1,000,000 publishes free |
+| **17** | **Amazon DynamoDB** | NoSQL Database | `vitelectronics-cart-sessions` — Low-latency session/cart store with automated TTL | 25 GB free |
+| **18** | **Amazon OpenSearch Service** | Search Engine | `vitelectronics-search` — Full-text search engine (with PostgreSQL fallback) | Free tier eligible |
+| **19** | **Amazon CloudWatch Logs** | Telemetry & Logging | `/aws/ec2/vitelectronics`, VPC flow logs, Step Functions execution logs | 5 GB log ingestion free |
+| **20** | **Amazon CloudWatch Alarms** | Observability | High EC2 CPU (>80%), High RDS CPU (>80%), Low RDS Free Storage (<2GB) | 10 alarms free |
+| **21** | **Amazon CloudWatch Dashboard** | Monitoring UI | `vitelectronics-operations-dashboard` — Single-pane view of compute, DB & SQS | 3 dashboards free |
+| **22** | **AWS CloudTrail** | Audit & Compliance | `vitelectronics-audit-trail` — Multi-region governance and AWS API audit logging | Always free for 90d |
+| **23** | **AWS Step Functions** | Serverless Workflow | `vitelectronics-order-fulfillment-workflow` — Order fulfillment & PDF invoice pipeline | 4,000 state transitions free |
+| **24** | **AWS KMS** | Cryptographic Security | `alias/vitelectronics-key` — Customer Managed Key (CMK) with automated key rotation | Free Tier allowance |
+| **25** | **AWS WAFv2** | Application Security | `vitelectronics-alb-waf` — Web ACL protecting against SQLi, XSS, and DDoS | Standard rules |
+| **26** | **AWS IAM** | Identity & Access | `vitelectronics-ec2-app-role`, least-privilege instance profiles & service roles | Always free |
+| **27** | **AWS Systems Manager (SSM)** | Management & Secrets | SSM Parameter Store (encrypted secrets) + SSM Session Manager (SSH-less shell) | Standard params free |
+| **28** | **AWS Budgets** | Cost Guardrail | `vitelectronics-spending-guardrail` — Automated email notifications at $1 threshold | Free |
 
 ---
 
-## 4. Step 2: Provision Infrastructure with Terraform
+## 2. One-Line Copy-Paste AWS CLI Deployment Command
 
-All cloud infrastructure is declared in `infrastructure/terraform/`.
+Your friend can copy and paste this command sequence directly into **AWS CloudShell**, their local terminal with AWS CLI configured, or on their EC2 instance:
 
-1. Navigate to the terraform directory:
-   ```bash
-   cd infrastructure/terraform
-   ```
-
-2. Copy the variable configuration file:
-   ```bash
-   cp terraform.tfvars.example terraform.tfvars
-   ```
-
-3. Edit `terraform.tfvars`:
-   ```hcl
-   aws_region         = "us-east-1"
-   environment        = "production"
-   project_name       = "murgdur"
-   budget_alert_email = "your-email@example.com"      # Email for budget & order alerts
-   db_username        = "postgres"
-   db_password        = "YourStrongPassword2026!"     # Master password for RDS
-   db_name            = "murgdurV2"
-   ec2_instance_type  = "t3.micro"
-   ec2_key_name       = ""                            # Leave empty to use SSM Session Manager or supply key pair
-   ```
-
-4. Initialize Terraform:
-   ```bash
-   terraform init
-   ```
-
-5. Review the execution plan:
-   ```bash
-   terraform plan
-   ```
-
-6. Apply and provision all AWS resources:
-   ```bash
-   terraform apply -auto-approve
-   ```
-
-7. **Save the Terraform Outputs**:
-   Upon completion (~4-6 minutes for RDS creation), Terraform will print:
-   - `ec2_public_ip`: Static Elastic IP for your server (e.g. `54.210.xx.xx`)
-   - `rds_postgres_endpoint`: RDS endpoint (e.g. `murgdur-db.xxxx.us-east-1.rds.amazonaws.com:5432`)
-   - `s3_bucket_name`: Private S3 media bucket (e.g. `murgdur-media-xxxx`)
-   - `cloudfront_cdn_url`: CloudFront CDN URL (e.g. `https://d123456789.cloudfront.net`)
-   - `opensearch_endpoint`: OpenSearch / Elasticsearch endpoint (e.g. `https://search-murgdur-xxxx.us-east-1.es.amazonaws.com`)
-   - `sqs_order_queue_url`: SQS Queue URL
-   - `sns_topic_arn`: SNS Topic ARN
-
----
-
-## 5. Step 3: Deploy Application to EC2
-
-1. **Connect to your EC2 instance**:
-   - Using SSH (if you provided an EC2 key pair):
-     ```bash
-     ssh -i /path/to/key.pem ubuntu@<EC2_PUBLIC_IP>
-     ```
-   - OR using AWS Systems Manager Session Manager (no open SSH ports needed):
-     ```bash
-     aws ssm start-session --target <EC2_INSTANCE_ID>
-     ```
-
-2. **Clone the code on EC2**:
-   ```bash
-   cd /home/ubuntu
-   git clone <YOUR_GIT_REPOSITORY_URL> app
-   cd app
-   ```
-
-3. **Create the Production Environment File (`.env`)**:
-   Create `/home/ubuntu/app/.env` with your AWS details:
-
-   ```env
-   # ── Database & Cache ──────────────────────────────────────────
-   DATABASE_URL="postgresql://postgres:YourStrongPassword2026!@<RDS_ENDPOINT>/murgdurV2?schema=public"
-   REDIS_URL="redis://redis:6379"
-
-   # ── Authentication ───────────────────────────────────────────
-   JWT_SECRET="generate-with-openssl-rand-hex-32"
-   JWT_REFRESH_SECRET="generate-different-hex-32"
-   NEXTAUTH_SECRET="generate-different-hex-32"
-   NEXTAUTH_URL="http://<EC2_PUBLIC_IP>:3000"
-
-   # ── AWS S3 & CloudFront ───────────────────────────────────────
-   AWS_REGION="us-east-1"
-   AWS_S3_BUCKET="<S3_BUCKET_NAME_FROM_TERRAFORM>"
-   AWS_CLOUDFRONT_DOMAIN="<CLOUDFRONT_CDN_URL_FROM_TERRAFORM>"
-   AWS_ACCESS_KEY_ID=""
-   AWS_SECRET_ACCESS_KEY=""
-   # Note: Since the EC2 instance profile has full S3/SQS/SNS IAM permissions,
-   # leaving AWS keys blank automatically uses IAM Task/Role credentials!
-
-   # ── AWS SQS & SNS ─────────────────────────────────────────────
-   AWS_SQS_ORDER_QUEUE_URL="<SQS_QUEUE_URL_FROM_TERRAFORM>"
-   AWS_SNS_TOPIC_ARN="<SNS_TOPIC_ARN_FROM_TERRAFORM>"
-
-   # ── Amazon OpenSearch / Elasticsearch ─────────────────────────
-   AWS_OPENSEARCH_ENDPOINT="<OPENSEARCH_ENDPOINT_FROM_TERRAFORM>"
-
-   # ── App URLs & Endpoints ─────────────────────────────────────
-   PORT=3001
-   NODE_ENV=production
-   FRONTEND_URL="http://<EC2_PUBLIC_IP>:3000"
-   NEXT_PUBLIC_API_URL="http://<EC2_PUBLIC_IP>:3001"
-   INTERNAL_API_URL="http://backend:3001"
-   NEXT_PUBLIC_CDN_URL="<CLOUDFRONT_CDN_URL_FROM_TERRAFORM>"
-   NEXT_PUBLIC_SITE_URL="http://<EC2_PUBLIC_IP>:3000"
-
-   # ── Admin Account Creation ────────────────────────────────────
-   ADMIN_EMAIL="admin@murgdur.com"
-   ADMIN_PASSWORD="YourSecureAdminPassword123!"
-
-   # ── Email Service (Optional SMTP) ────────────────────────────
-   SMTP_HOST="smtp.gmail.com"
-   SMTP_PORT=587
-   SMTP_USER=""
-   SMTP_PASS=""
-   ```
-
----
-
-## 6. Step 4: Initialize the Clean Database & Admin Login
-
-The repository contains a fresh, pristine initial migration (`0_init/migration.sql`) and clean seed script (`seed.js`).
-
-1. **Deploy all database tables**:
-   ```bash
-   cd /home/ubuntu/app/backend
-   npx prisma migrate deploy
-   ```
-   *This creates all PostgreSQL tables, relations, constraints, and indexes cleanly on RDS.*
-
-2. **Seed Admin Login and Initial Store Configuration**:
-   ```bash
-   node prisma/seed.js
-   ```
-   *This creates:*
-   - **Admin Account**: `admin@murgdur.com` with your `ADMIN_PASSWORD` and `ADMIN` role.
-   - **Site Configuration**: Base theme, luxury gold accents, WhatsApp concierge settings, and brand defaults.
-   - **Base Category Containers**: Men, Women, Bags, Watches, Collections, New Arrivals.
-   - **0 Fake Products**: The product catalog is 100% blank.
-
----
-
-## 7. Step 5: Start the Platform via Docker Compose
-
-Run the production stack in the background:
 ```bash
-cd /home/ubuntu/app
-docker compose -f infrastructure/docker-compose.prod.yml --env-file .env up -d --build
+# ── STEP 1: Clone the repository ──
+git clone https://github.com/likhithm123/AWS-PROJECT.git vit-electronics && cd vit-electronics
+
+# ── STEP 2: Run the automated all-in-one setup ──
+chmod +x infrastructure/scripts/deploy-aws-complete.sh
+./infrastructure/scripts/deploy-aws-complete.sh
 ```
 
-Verify that all containers are healthy:
+### What This Automated Script Does:
+1. Validates that the AWS CLI is authenticated to your friend's AWS account.
+2. Initializes and applies Terraform in `infrastructure/terraform/`, provisioning **all 23 AWS services** (VPC, Subnets, Security Groups, RDS PostgreSQL, S3, CloudFront, SQS, SNS, EC2, CloudWatch, SSM, Step Functions, WAF, KMS, Budgets).
+3. Captures the generated AWS RDS endpoint, S3 bucket name, and CloudFront domain.
+4. Auto-generates the production `.env` file pointing directly to the **AWS RDS database**.
+5. Builds and launches the Docker containers (`redis`, `migrate`, `backend`, `frontend`).
+6. Deploys the Prisma database migrations onto the **AWS RDS instance**.
+7. Seeds the database with **VIT ELECTRONICS** store branding, categories, and default administrator credentials.
+8. Displays the live web links and login credentials.
+
+---
+
+## 3. Step-by-Step Manual Deployment Guide
+
+If your friend prefers to execute each step individually:
+
+### Step 3.1: Configure AWS CLI
+Ensure AWS CLI v2 and Terraform (>= 1.5.0) are installed:
 ```bash
+aws configure
+# AWS Access Key ID: <Friend-AWS-Access-Key-ID>
+# AWS Secret Access Key: <Friend-AWS-Secret-Access-Key>
+# Default region name: us-east-1
+# Default output format: json
+```
+
+### Step 3.2: Provision Cloud Infrastructure with Terraform
+```bash
+cd infrastructure/terraform
+
+# Copy variable template
+cp terraform.tfvars.example terraform.tfvars
+
+# Initialize Terraform providers
+terraform init
+
+# Plan and apply
+terraform apply -auto-approve
+```
+
+Terraform provisions all resources and outputs the values:
+```bash
+# Example outputs:
+ec2_public_ip          = "54.210.xx.xx"
+rds_postgres_endpoint  = "vitelectronics-postgres.xxxx.us-east-1.rds.amazonaws.com:5432"
+s3_bucket_name         = "vitelectronics-media-xxxx"
+cloudfront_cdn_url     = "https://d123456789.cloudfront.net"
+sqs_order_queue_url    = "https://sqs.us-east-1.amazonaws.com/xxxx/vitelectronics-order-queue"
+sns_topic_arn          = "arn:aws:sns:us-east-1:xxxx:vitelectronics-order-alerts"
+```
+
+### Step 3.3: Configure the Production Environment File (`.env`)
+At the project root, create or edit `.env`:
+```env
+# ── AWS RDS PostgreSQL & Redis ─────────────────────────────────
+DATABASE_URL="postgresql://postgres:VitElectronics2026!@<RDS_POSTGRES_ENDPOINT>/vitelectronics?schema=public"
+REDIS_URL="redis://redis:6379"
+
+# ── Authentication ───────────────────────────────────────────
+JWT_SECRET="7f8b9c2a1e3d4f5g6h7i8j9k0l1m2n3o4p5q6r7s8t9u0v1w2x3y4z5a6b7c8d9e"
+JWT_REFRESH_SECRET="a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2"
+NEXTAUTH_SECRET="9f8e7d6c5b4a3928172635445566778899aabbccddeeff001122334455667788"
+NEXTAUTH_URL="http://<EC2_PUBLIC_IP>:3000"
+
+# ── AWS Services (S3, CloudFront, SQS, SNS) ───────────────────
+AWS_REGION="us-east-1"
+AWS_S3_BUCKET="<S3_BUCKET_NAME_FROM_TERRAFORM>"
+AWS_CLOUDFRONT_DOMAIN="<CLOUDFRONT_CDN_URL_FROM_TERRAFORM>"
+AWS_SQS_ORDER_QUEUE_URL="<SQS_QUEUE_URL_FROM_TERRAFORM>"
+AWS_SNS_TOPIC_ARN="<SNS_TOPIC_ARN_FROM_TERRAFORM>"
+# Leave access keys blank if running on EC2 (uses IAM instance profile automatically)
+AWS_ACCESS_KEY_ID=""
+AWS_SECRET_ACCESS_KEY=""
+
+# ── App URLs & Endpoints ─────────────────────────────────────
+PORT=3001
+NODE_ENV=production
+FRONTEND_URL="http://<EC2_PUBLIC_IP>:3000"
+NEXT_PUBLIC_API_URL="http://<EC2_PUBLIC_IP>:3001"
+INTERNAL_API_URL="http://backend:3001"
+NEXT_PUBLIC_CDN_URL="<CLOUDFRONT_CDN_URL_FROM_TERRAFORM>"
+NEXT_PUBLIC_SITE_URL="http://<EC2_PUBLIC_IP>:3000"
+
+# ── Default Admin Account ────────────────────────────────────
+ADMIN_EMAIL="admin@vitelectronics.com"
+ADMIN_PASSWORD="Admin@123"
+
+# ── Transactional Email (Optional SMTP) ───────────────────────
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT=587
+SMTP_USER=""
+SMTP_PASS=""
+SMTP_FROM="VIT ELECTRONICS <admin@vitelectronics.com>"
+```
+
+### Step 3.4: Deploy Application with Docker Compose
+```bash
+# Build and launch production stack (Redis, DB migration, Backend, Frontend)
+docker compose --env-file .env -f infrastructure/docker-compose.prod.yml up -d --build
+
+# Verify container health
 docker compose -f infrastructure/docker-compose.prod.yml ps
 ```
 
-Expected status:
-```
-NAME                 IMAGE                     STATUS
-murgdur-backend      murgdur-backend:latest    Up (healthy)
-murgdur-frontend     murgdur-frontend:latest   Up
-murgdur-redis        redis:7-alpine            Up (healthy)
+### Step 3.5: Seed Admin & Initial Store Catalog
+```bash
+docker compose --env-file .env -f infrastructure/docker-compose.prod.yml exec -T backend node prisma/seed.js
 ```
 
 ---
 
-## 8. Step 6: Accessing Your New Website & Admin Portal
+## 4. Default Admin Credentials
 
-1. **Customer Storefront**:
-   - Visit: `http://<EC2_PUBLIC_IP>:3000`
-   - Shows the clean luxury storefront ready for your new collections.
+Share these credentials with your friend:
 
-2. **Admin Portal**:
-   - Visit: `http://<EC2_PUBLIC_IP>:3000/login` or `http://<EC2_PUBLIC_IP>:3000/admin`
-   - **Email**: `admin@murgdur.com`
-   - **Password**: `YourSecureAdminPassword123!` (or `Admin@123`)
-
-3. **Managing Your Store**:
-   - In `/admin/catalog`: Click **Add Product** to create your first real item.
-   - Uploading product images automatically:
-     1. Compresses and generates `hero` (1200px), `medium` (800px), and `thumb` (400px) `.webp` files.
-     2. Uploads them to your private **Amazon S3** bucket.
-     3. Serves them globally through your **Amazon CloudFront** CDN.
-   - In `/admin/homepage`: Configure hero banners, slides, and editorial sections.
-   - In `/admin/theme`: Adjust brand colors, typography, and WhatsApp concierge phone numbers.
+| Detail | Value |
+|---|---|
+| **Storefront URL** | `http://<EC2_PUBLIC_IP>:3000` |
+| **Admin Portal URL** | `http://<EC2_PUBLIC_IP>:3000/admin` or `/login` |
+| **Backend Health Endpoint** | `http://<EC2_PUBLIC_IP>:3001/health` |
+| **Default Admin Email** | `admin@vitelectronics.com` |
+| **Default Admin Password** | `Admin@123` *(or `VitAdmin@2026!`)* |
+| **Admin Role** | `ADMIN` (Full catalog, orders, media, theme, and config access) |
 
 ---
 
-## 9. Step 7: Custom Domain & HTTPS Setup (Optional)
+## 5. Branded Invoice & PDF Generation
 
-When you are ready to point your custom domain (e.g. `murgdur.com`):
-
-1. **Amazon Route 53 or DNS Provider**:
-   - Create an **A Record** pointing `murgdur.com` and `api.murgdur.com` to your `EC2_PUBLIC_IP`.
-   - Create a **CNAME Record** for `media.murgdur.com` pointing to `<CLOUDFRONT_DOMAIN_NAME>`.
-2. **AWS Certificate Manager (ACM)**:
-   - Request a free public wildcard SSL certificate in `us-east-1` for `*.murgdur.com` and `murgdur.com`.
-   - Attach the ACM certificate to your CloudFront distribution for `media.murgdur.com`.
-3. **Nginx / Reverse Proxy with SSL on EC2**:
-   - Install Certbot on EC2:
-     ```bash
-     sudo apt-get install -y certbot python3-certbot-nginx
-     sudo certbot --nginx -d murgdur.com -d api.murgdur.com
-     ```
-   - Update `FRONTEND_URL`, `NEXTAUTH_URL`, and `NEXT_PUBLIC_API_URL` in `.env` to `https://murgdur.com`.
+- **Company Name on Invoices**: `VIT ELECTRONICS`
+- **Customer Receipts**: Automatically generated as branded PDFs with `VIT ELECTRONICS` header, itemized products, tax calculation, and order tracking number.
+- **S3 & CDN Archival**: Invoices are uploaded directly to the private **Amazon S3** bucket under the `invoices/` prefix, served via signed **Amazon CloudFront** URLs, and archived to Amazon Glacier after 90 days.
+- **Email Delivery**: Attached as PDF directly to customer order confirmation emails via SMTP.
 
 ---
 
-## 10. Cost Optimization & Monitoring
+## 6. Teardown / Destroy Infrastructure (If Ever Needed)
 
-- **AWS Free Tier Protection**:
-  - The Terraform configuration automatically provisioned an **AWS Budget** alert notifying you at `$1.00` spend.
-  - S3 lifecycle policies automatically transition invoice PDFs to Amazon Glacier after 90 days and delete temporary uploads after 30 days.
-  - CloudWatch logs are configured with a 7-day retention period to stay within the 5 GB free tier limit.
-- **Teardown (If ever needed)**:
-  ```bash
-  cd infrastructure/terraform
-  terraform destroy -auto-approve
-  ```
+To completely clean up all 23 AWS resources and stop all billing:
+```bash
+cd infrastructure/terraform
+terraform destroy -auto-approve
+```

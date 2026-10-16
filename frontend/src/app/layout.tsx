@@ -47,11 +47,11 @@ const getSiteConfig = cache(async (): Promise<any> => {
   return null
 })
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://murgdur.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://vitelectronics.com'
 
 export async function generateMetadata(): Promise<Metadata> {
   const config      = await getSiteConfig()
-  const title       = config?.siteTitle    ?? 'VIT'
+  const title       = config?.siteTitle    ?? 'VIT ELECTRONICS'
   const description = config?.footerTagline ?? 'Next-generation gadgets, intelligent hardware & smart technology.'
   const ogImage     = config?.ogImageUrl  || null
   const favicon     = config?.faviconUrl  || null
@@ -61,8 +61,8 @@ export async function generateMetadata(): Promise<Metadata> {
     ...(favicon && { icons: { icon: favicon, shortcut: favicon, apple: favicon } }),
     title:        { default: title, template: `%s | ${title}` },
     description,
-    keywords:     ['smart gadgets', 'tech gadgets', 'electronics', 'smart audio', 'smartwatches', 'wearables', 'drones', 'computing', 'VIT'],
-    authors:      [{ name: 'VIT' }],
+    keywords:     ['smart gadgets', 'tech gadgets', 'electronics', 'smart audio', 'smartwatches', 'wearables', 'drones', 'computing', 'VIT Electronics'],
+    authors:      [{ name: 'VIT Electronics' }],
     robots: process.env.NODE_ENV === 'production'
       ? { index: true,  follow: true,  googleBot: { index: true,  follow: true  } }
       : { index: false, follow: false, googleBot: { index: false, follow: false } },
@@ -140,7 +140,7 @@ const fontVars = [
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const config     = await getSiteConfig()
   const dynamicCss = buildCss(config)
-  const siteTitle  = config?.siteTitle  ?? 'VIT'
+  const siteTitle  = config?.siteTitle  ?? 'VIT ELECTRONICS'
   const ogImage    = config?.ogImageUrl || null
 
   const organizationSchema = {
@@ -150,8 +150,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     url:     SITE_URL,
     ...(ogImage && { logo: ogImage }),
     sameAs:  [
-      'https://instagram.com/vit',
-      'https://twitter.com/vit',
+      'https://instagram.com/vitelectronics',
+      'https://twitter.com/vitelectronics',
     ],
     contactPoint: {
       '@type':             'ContactPoint',
